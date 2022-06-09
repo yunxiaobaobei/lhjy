@@ -15,8 +15,9 @@ namespace StockTest
 
         public List<double> Prices { get; set; }
 
+        public List<double> Ave_prices { get; set; }
 
-
+        public List<double>  Amount {get; set; }
 
     }
 }

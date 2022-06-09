@@ -133,7 +133,7 @@ namespace StockTest
         /// <summary>
         /// 
         /// </summary>
-        public double chg { get; set; }
+        public string chg { get; set; }
 
         /// <summary>
         /// 
@@ -153,12 +153,12 @@ namespace StockTest
         /// <summary>
         /// 
         /// </summary>
-        public double high { get; set; }
+        public string high { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public double low { get; set; }
+        public string low { get; set; }
 
         /// <summary>
         /// 
