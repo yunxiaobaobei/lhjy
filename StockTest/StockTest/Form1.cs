@@ -13,6 +13,7 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading;
 
+
 namespace StockTest
 {
     public partial class Form1 : Form
@@ -31,6 +32,10 @@ namespace StockTest
         Record stockList = null;
 
 
+        private List<Tuple<float?, int>> SSpankouList = new List<Tuple<float?, int>>();
+
+        private List<Tuple<string, float, int>> MMtrade = new List<Tuple<string, float, int>>();
+
         private void Form1_Load(object sender, EventArgs e)
         {
             oneMinuteDraw.Prices = new List<double>();
@@ -41,10 +46,12 @@ namespace StockTest
             LoadBaseInfo();
 
 
-
             string html =  GetStockOnlineInfo("SZ300087");
 
             CalcPrice(html);
+
+
+
 
         }
 
@@ -63,7 +70,7 @@ namespace StockTest
 
                 double dis = length / le;
 
-                double disW = panel2.Width / oneMinuteDraw.Prices.Count;
+                double disW = panel2.Width /  oneMinuteDraw.Prices.Count; //应该动态扩展
 
                 g.DrawLine(Pens.Black, new Point(0, le), new Point(panel2.Width, le));
 
@@ -261,6 +268,270 @@ namespace StockTest
                 panel3.Invalidate();
                 
             }
+
+        }
+
+        //
+        private void btn_pankou_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HttpWebRequest request = null;
+                HttpWebResponse response = null;
+
+                CookieContainer cc = new CookieContainer();
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/pankou.json?symbol=SZ300261"); //300364    //300087
+                request.Method = "Get";
+                request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate; 
+
+
+                CookieCollection co = new CookieCollection();
+                co.Add(new Cookie("xq_a_token", "83886f7ef4add65155e8ef54dfc3e739afa7472a", "", "stock.xueqiu.com"));
+                //co.Add(new Cookie("xqat", "83886f7ef4add65155e8ef54dfc3e739afa7472a"));
+                cc.Add(co);
+
+                request.AllowAutoRedirect = false;
+                request.CookieContainer = cc;
+                request.KeepAlive = true;
+                request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
+
+
+                Stream ss = request.GetResponse().GetResponseStream();
+                StreamReader streamReader = new StreamReader(ss, Encoding.UTF8);
+                string html = streamReader.ReadToEnd();
+
+                ss.Close();
+                streamReader.Close();
+
+               // return html;
+               richTextBox1.AppendText(html);
+                
+                //5档盘口
+                Pankou pankou  = JsonConvert.DeserializeObject<Pankou>(html);
+
+                 DateTime dt = Common.GetDateTime(pankou.Data.timestamp);
+
+                long sss = Common.GetTimeStamp(DateTime.Now);
+
+                SSpankouList.Clear();
+
+
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Bp1, pankou.Data.Bc1));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Bp2, pankou.Data.Bc2));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Bp3, pankou.Data.Bc3));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Bp4, pankou.Data.Bc4));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Bp5, pankou.Data.Bc5));
+
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Sp1, pankou.Data.Sc1));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Sp1, pankou.Data.Sc1));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Sp1, pankou.Data.Sc1));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Sp1, pankou.Data.Sc1));
+                SSpankouList.Add(new Tuple<float?, int>(pankou.Data.Sp1, pankou.Data.Sc1));
+
+                panel7.Invalidate();
+            }
+            catch (Exception ex)
+            {
+              //  return "";
+            }
+
+        }
+
+        private void btn_trade_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                HttpWebRequest request = null;
+                HttpWebResponse response = null;
+
+                CookieContainer cc = new CookieContainer();
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/history/trade.json?symbol=SZ300261&count=10"); //300364    //300087
+                request.Method = "Get";
+                request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+
+                CookieCollection co = new CookieCollection();
+                co.Add(new Cookie("xq_a_token", "83886f7ef4add65155e8ef54dfc3e739afa7472a", "", "stock.xueqiu.com"));
+                //co.Add(new Cookie("xqat", "83886f7ef4add65155e8ef54dfc3e739afa7472a"));
+                cc.Add(co);
+
+                request.AllowAutoRedirect = false;
+                request.CookieContainer = cc;
+                request.KeepAlive = true;
+                request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
+
+
+                Stream ss = request.GetResponse().GetResponseStream();
+                StreamReader streamReader = new StreamReader(ss, Encoding.UTF8);
+                string html = streamReader.ReadToEnd();
+
+                ss.Close();
+                streamReader.Close();
+
+                // return html;
+                richTextBox1.AppendText(html);
+
+
+
+                Trade trade = JsonConvert.DeserializeObject<Trade>(html);
+
+                MMtrade.Clear();
+                for (int i = 0; i < trade.Data.Items.Count(); i++)
+                {
+                    string time = Common.GetDateTime(trade.Data.Items[i].Timestamp).Hour + ":" + Common.GetDateTime(trade.Data.Items[i].Timestamp).Minute;
+                    Tuple<string, float, int> item = new Tuple<string, float, int>(time, trade.Data.Items[i].Current, trade.Data.Items[i].Trade_volume / 100);
+
+                    MMtrade.Add(item);
+                }
+
+                panel6.Invalidate();
+            }
+            catch (Exception ex)
+            {
+                //  return "";
+            }
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stockNum"></param>
+        /// <returns></returns>
+        private string QuotecInfo(string stockNum)
+        {
+            try
+            {
+                HttpWebRequest request = null;
+                HttpWebResponse response = null;
+
+                CookieContainer cc = new CookieContainer();
+
+                long timeSpan = Common.GetTimeStamp(DateTime.Now);
+
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SZ300261&_={timeSpan}"); //300364    //300087
+                request.Method = "Get";
+                request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+
+                CookieCollection co = new CookieCollection();
+                co.Add(new Cookie("xq_a_token", "83886f7ef4add65155e8ef54dfc3e739afa7472a", "", "stock.xueqiu.com"));
+                //co.Add(new Cookie("xqat", "83886f7ef4add65155e8ef54dfc3e739afa7472a"));
+                cc.Add(co);
+
+                request.AllowAutoRedirect = false;
+                request.CookieContainer = cc;
+                request.KeepAlive = true;
+                request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
+
+
+                Stream ss = request.GetResponse().GetResponseStream();
+                StreamReader streamReader = new StreamReader(ss, Encoding.UTF8);
+                string html = streamReader.ReadToEnd();
+
+                ss.Close();
+                streamReader.Close();
+
+                return html;
+
+            }
+            catch (Exception ex)
+            {
+                return "";
+            }
+        }
+
+        private void btn_Quotec_Click(object sender, EventArgs e)
+        {
+          string str =   QuotecInfo("ssss");
+
+            richTextBox1.AppendText(Common.ConvertJsonString(str));
+        }
+
+
+        /// <summary>
+        /// 绘制
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panel7_Paint(object sender, PaintEventArgs e)
+        {
+
+            if (SSpankouList.Count > 0)
+            {
+                //上面
+
+                Graphics graphics = e.Graphics;
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+
+                int baseHeiht = panel7.Height / 2;
+
+                Font f = new Font("微软雅黑", 12, FontStyle.Regular);
+
+                graphics.DrawLine(Pens.Black, new Point(0, baseHeiht), new Point(panel7.Width, baseHeiht));
+
+                for (int i = 0; i < 5; i++)
+                {
+
+                    string tempStr = "mm" + (i + 1) + "   " + SSpankouList[i].Item1 + "   " + SSpankouList[i].Item2 / 100;
+
+                    SizeF s = graphics.MeasureString(tempStr, f);
+
+                    PointF drawP = new PointF( 0,  baseHeiht - i * s.Height  - (s.Height + 2));
+
+
+                    graphics.DrawString(tempStr, f, new SolidBrush(Color.Green), drawP);
+
+                }
+
+                for (int i = 0; i < 5; i++)
+                {
+                    string tempStr = "mm" + (i + 1) + "   " + SSpankouList[i + 5].Item1 + "   " + SSpankouList[i + 5].Item2 / 100;
+
+                    SizeF s = graphics.MeasureString(tempStr, f);
+
+                    PointF drawP = new PointF(0, baseHeiht + i * s.Height + (s.Height + 2));
+
+
+                    graphics.DrawString(tempStr, f, new SolidBrush(Color.Green), drawP);
+                }
+
+
+            }
+
+
+
+        }
+
+        //绘制
+        private void panel6_Paint(object sender, PaintEventArgs e)
+        {
+            if (MMtrade.Count > 0)
+            {
+                Graphics graphics = e.Graphics;
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+
+                Font f = new Font("微软雅黑", 12, FontStyle.Regular);
+
+                graphics.DrawLine(Pens.Black, new Point(0, 2), new Point(panel6.Width, 2));
+
+                for (int i = 0; i < MMtrade.Count; i++)
+                {
+                    string tempStr = MMtrade[i].Item1 + "   " + MMtrade[i].Item2 + "   " + MMtrade[i].Item3 / 100;
+
+                    SizeF s = graphics.MeasureString(tempStr, f);
+
+                    PointF drawP = new PointF(0,  i * s.Height  + 2);
+
+
+                    graphics.DrawString(tempStr, f, new SolidBrush(Color.Green), drawP);
+                }
+
+            }
+
 
         }
     }

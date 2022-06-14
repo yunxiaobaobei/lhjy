@@ -8,7 +8,7 @@ using System.IO;
 
 namespace StockTest
 {
-    internal class Common
+    public static class Common
     {
         public static string ConvertJsonString(string str)
         {
@@ -40,6 +40,29 @@ namespace StockTest
             }
         }
 
+        
+        /// <summary>
+        /// 返回指定时间的时间戳
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static long GetTimeStamp(DateTime dt)
+        {
+            DateTime dateStart = new DateTime(1970, 1, 1, 8, 0, 0);
+            long timestamp =Convert.ToInt32((dt -dateStart).TotalSeconds);
+
+            return timestamp;
+        }
+
+        public static DateTime GetDateTime(long timeStamp)
+        {
+            DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+            long lTime = timeStamp * 10000;
+            TimeSpan toNow = new TimeSpan(lTime);
+            DateTime targetDT = dtStart.Add(toNow);
+
+            return targetDT;
+        }
 
     }
 }

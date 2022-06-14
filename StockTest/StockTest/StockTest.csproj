@@ -58,9 +58,12 @@
     </Compile>
     <Compile Include="OneMinute.cs" />
     <Compile Include="OneMinuteDraw.cs" />
+    <Compile Include="Pankou.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Quotec.cs" />
     <Compile Include="StockInfo.cs" />
+    <Compile Include="Trade.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
