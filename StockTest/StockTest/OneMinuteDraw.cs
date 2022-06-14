@@ -19,5 +19,9 @@ namespace StockTest
 
         public List<double>  Amount {get; set; }
 
+        public List<double> Ave_amout { get; set; } //分时均量
+
+        public List<int> KeyPoint { get; set; } //分析的关键点
+
     }
 }

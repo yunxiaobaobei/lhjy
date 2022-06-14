@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btn_Quotec = new System.Windows.Forms.Button();
+            this.btn_trade = new System.Windows.Forms.Button();
+            this.btn_pankou = new System.Windows.Forms.Button();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -37,12 +40,9 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.btn_pankou = new System.Windows.Forms.Button();
-            this.btn_trade = new System.Windows.Forms.Button();
-            this.panel6 = new System.Windows.Forms.Panel();
             this.panel7 = new System.Windows.Forms.Panel();
-            this.btn_Quotec = new System.Windows.Forms.Button();
+            this.panel6 = new System.Windows.Forms.Panel();
+            this.panel5 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -63,6 +63,36 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(199, 568);
             this.panel1.TabIndex = 0;
+            // 
+            // btn_Quotec
+            // 
+            this.btn_Quotec.Location = new System.Drawing.Point(8, 152);
+            this.btn_Quotec.Name = "btn_Quotec";
+            this.btn_Quotec.Size = new System.Drawing.Size(75, 23);
+            this.btn_Quotec.TabIndex = 8;
+            this.btn_Quotec.Text = "Quotec";
+            this.btn_Quotec.UseVisualStyleBackColor = true;
+            this.btn_Quotec.Click += new System.EventHandler(this.btn_Quotec_Click);
+            // 
+            // btn_trade
+            // 
+            this.btn_trade.Location = new System.Drawing.Point(8, 123);
+            this.btn_trade.Name = "btn_trade";
+            this.btn_trade.Size = new System.Drawing.Size(75, 23);
+            this.btn_trade.TabIndex = 7;
+            this.btn_trade.Text = "trade";
+            this.btn_trade.UseVisualStyleBackColor = true;
+            this.btn_trade.Click += new System.EventHandler(this.btn_trade_Click);
+            // 
+            // btn_pankou
+            // 
+            this.btn_pankou.Location = new System.Drawing.Point(8, 94);
+            this.btn_pankou.Name = "btn_pankou";
+            this.btn_pankou.Size = new System.Drawing.Size(75, 23);
+            this.btn_pankou.TabIndex = 6;
+            this.btn_pankou.Text = "pankou";
+            this.btn_pankou.UseVisualStyleBackColor = true;
+            this.btn_pankou.Click += new System.EventHandler(this.btn_pankou_Click);
             // 
             // comboBox2
             // 
@@ -102,6 +132,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 20);
             this.comboBox1.TabIndex = 2;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // richTextBox1
             // 
@@ -140,35 +171,14 @@
             this.panel4.Size = new System.Drawing.Size(162, 568);
             this.panel4.TabIndex = 4;
             // 
-            // panel5
+            // panel7
             // 
-            this.panel5.Controls.Add(this.panel2);
-            this.panel5.Controls.Add(this.panel3);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel5.Location = new System.Drawing.Point(0, 0);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(808, 568);
-            this.panel5.TabIndex = 5;
-            // 
-            // btn_pankou
-            // 
-            this.btn_pankou.Location = new System.Drawing.Point(8, 94);
-            this.btn_pankou.Name = "btn_pankou";
-            this.btn_pankou.Size = new System.Drawing.Size(75, 23);
-            this.btn_pankou.TabIndex = 6;
-            this.btn_pankou.Text = "pankou";
-            this.btn_pankou.UseVisualStyleBackColor = true;
-            this.btn_pankou.Click += new System.EventHandler(this.btn_pankou_Click);
-            // 
-            // btn_trade
-            // 
-            this.btn_trade.Location = new System.Drawing.Point(8, 123);
-            this.btn_trade.Name = "btn_trade";
-            this.btn_trade.Size = new System.Drawing.Size(75, 23);
-            this.btn_trade.TabIndex = 7;
-            this.btn_trade.Text = "trade";
-            this.btn_trade.UseVisualStyleBackColor = true;
-            this.btn_trade.Click += new System.EventHandler(this.btn_trade_Click);
+            this.panel7.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel7.Location = new System.Drawing.Point(0, 0);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(162, 332);
+            this.panel7.TabIndex = 1;
+            this.panel7.Paint += new System.Windows.Forms.PaintEventHandler(this.panel7_Paint);
             // 
             // panel6
             // 
@@ -179,24 +189,15 @@
             this.panel6.TabIndex = 0;
             this.panel6.Paint += new System.Windows.Forms.PaintEventHandler(this.panel6_Paint);
             // 
-            // panel7
+            // panel5
             // 
-            this.panel7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel7.Location = new System.Drawing.Point(0, 0);
-            this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(162, 332);
-            this.panel7.TabIndex = 1;
-            this.panel7.Paint += new System.Windows.Forms.PaintEventHandler(this.panel7_Paint);
-            // 
-            // btn_Quotec
-            // 
-            this.btn_Quotec.Location = new System.Drawing.Point(8, 152);
-            this.btn_Quotec.Name = "btn_Quotec";
-            this.btn_Quotec.Size = new System.Drawing.Size(75, 23);
-            this.btn_Quotec.TabIndex = 8;
-            this.btn_Quotec.Text = "Quotec";
-            this.btn_Quotec.UseVisualStyleBackColor = true;
-            this.btn_Quotec.Click += new System.EventHandler(this.btn_Quotec_Click);
+            this.panel5.Controls.Add(this.panel2);
+            this.panel5.Controls.Add(this.panel3);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel5.Location = new System.Drawing.Point(0, 0);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(808, 568);
+            this.panel5.TabIndex = 5;
             // 
             // Form1
             // 
@@ -208,6 +209,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

@@ -36,12 +36,18 @@ namespace StockTest
 
         private List<Tuple<string, float, int>> MMtrade = new List<Tuple<string, float, int>>();
 
+
+        
+
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
             oneMinuteDraw.Prices = new List<double>();
             oneMinuteDraw.Ave_prices = new List<double>();
             oneMinuteDraw.Amount = new List<double>();
-
+            oneMinuteDraw.Ave_amout = new List<double>();
+            oneMinuteDraw.KeyPoint = new List<int>();
             //ThreadPool.QueueUserWorkItem( (o) =>  LoadBaseInfo(), null);
             LoadBaseInfo();
 
@@ -51,6 +57,7 @@ namespace StockTest
             CalcPrice(html);
 
 
+            comboBox1.SelectedIndex = 0;
 
 
         }
@@ -99,6 +106,21 @@ namespace StockTest
                     g.DrawLines(Pens.Red, ave_points.ToArray());
                 }
 
+
+                List<PointF> keyPoints = new List<PointF>(); //关键点位
+                if (oneMinuteDraw.KeyPoint.Count > 0)
+                {
+
+                    for (int i = 0; i < oneMinuteDraw.KeyPoint.Count; i++)
+                    {
+                        int index = oneMinuteDraw.KeyPoint[i];
+                        RectangleF rect = new RectangleF(points[index].X - 5, points[index].Y - 5, 10, 10);
+                        g.DrawEllipse(Pens.Red, rect);
+                    }
+
+                }
+
+
                 Font f = new Font("Arial", 12, FontStyle.Regular);
 
                 g.DrawString(min.data.last_close.ToString(), f, new SolidBrush(Color.Black), new Point(0, le));
@@ -131,10 +153,13 @@ namespace StockTest
                 double aveDisX = panel3.Width / oneMinuteDraw.Amount.Count;
 
                 List<PointF> pointFs = new List<PointF>();
-
+                List<PointF> aveAmountPoints = new List<PointF>();
                 for (int i = 0; i < oneMinuteDraw.Amount.Count; i++)
                 {
                     pointFs.Add(new PointF((float)(i * aveDisX), panel3.Height - baseLine  -  (float)(oneMinuteDraw.Amount[i] / maxAmount * (panel3.Height - baseLine * 2)  )));
+
+                    aveAmountPoints.Add(new PointF((float)(i * aveDisX), panel3.Height - baseLine - (float)(oneMinuteDraw.Ave_amout[i] / maxAmount * (panel3.Height - baseLine * 2))));
+
                     g.DrawLine(Pens.Red, new PointF(pointFs[i].X,  panel3.Height - baseLine), pointFs[i]);
                 }
 
@@ -143,7 +168,11 @@ namespace StockTest
                 g.DrawLine(Pens.Black, new Point(0, panel3.Height - baseLine), new Point(panel3.Width, panel3.Height - baseLine));
 
                 g.DrawLines(Pens.Green, pointFs.ToArray());
-                
+
+
+                //绘制均量
+
+                g.DrawLines(Pens.Black, aveAmountPoints.ToArray());
 
 
                 //分析画圈
@@ -235,15 +264,71 @@ namespace StockTest
                 oneMinuteDraw.Ave_prices.Clear();
                 oneMinuteDraw.Amount.Clear();
 
+                double totalAmount = 0;
+
+                oneMinuteDraw.Ave_amout.Clear();
+
+
+                bool isKeyWave = false;
+
+
+
                 for (int i = 0; i < min.data.items.Count; i++)
                 {
                     oneMinuteDraw.Prices.Add(min.data.items[i].current);
                     oneMinuteDraw.Ave_prices.Add(min.data.items[i].avg_price);
                     oneMinuteDraw.Amount.Add(min.data.items[i].amount);
-                }
 
-                oneMinuteDraw.MaxPrice = oneMinuteDraw.Prices.Max();
-                oneMinuteDraw.MinPrice = oneMinuteDraw.Prices.Min();
+                    totalAmount += min.data.items[i].amount;
+
+
+                    oneMinuteDraw.Ave_amout.Add(totalAmount / oneMinuteDraw.Amount.Count);
+
+
+
+                    if (i > 15) //忽略前15分钟
+                    {
+                        //必要条件
+                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Ave_amout[i] * 1.25)
+                        {
+
+                            if (isKeyWave == false) //首次进入做标记
+                            {
+                                isKeyWave = true;
+                            }
+                            else
+                            {
+                                //判断是否为下跌趋势
+
+                                if (isKeyWave == true)
+                                {
+                                    if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] < oneMinuteDraw.Prices[i - 1]) //量增大
+                                    {
+                                        oneMinuteDraw.KeyPoint.Add(i);
+
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                }
+
+                            }
+                        }
+                        else //回落则恢复
+                        {
+                            if (isKeyWave == true)
+                                isKeyWave = false;
+                        }
+
+                    }
+
+                    //均量
+
+
+                    oneMinuteDraw.MaxPrice = oneMinuteDraw.Prices.Max();
+                    oneMinuteDraw.MinPrice = oneMinuteDraw.Prices.Min();
+                }
             }
         }
 
@@ -532,6 +617,11 @@ namespace StockTest
 
             }
 
+
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
 
         }
     }
