@@ -37,9 +37,9 @@ namespace StockTest
         private List<Tuple<string, float, int>> MMtrade = new List<Tuple<string, float, int>>();
 
 
-        
+        Bitmap klinePic = null;
 
-
+        Graphics klineG = null;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -47,9 +47,18 @@ namespace StockTest
             oneMinuteDraw.Ave_prices = new List<double>();
             oneMinuteDraw.Amount = new List<double>();
             oneMinuteDraw.Ave_amout = new List<double>();
-            oneMinuteDraw.KeyPoint = new List<int>();
+            oneMinuteDraw.KeyPointSel = new List<int>();
+            oneMinuteDraw.KeyPointBuy = new List<int>();
             //ThreadPool.QueueUserWorkItem( (o) =>  LoadBaseInfo(), null);
+
+
+            klinePic = new Bitmap(panel2.Width, panel2.Height);
+            klineG = Graphics.FromImage(klinePic);
+            klineG.Clear(Color.White);
+
             LoadBaseInfo();
+
+
 
 
             string html =  GetStockOnlineInfo("SZ300087");
@@ -69,17 +78,34 @@ namespace StockTest
 
             g.Clear(Color.White);
 
+           
+            g.DrawImage(klinePic, new RectangleF(PointF.Empty, klinePic.Size));
+
+            if (isDrawStandLine == true)
+            {
+                //PointF vP = new PointF(
+
+                //纵向
+                g.DrawLine(Pens.Black, new PointF(basePoinf.X, panel2.Height), new PointF(basePoinf.X, 0));
+                g.DrawLine(Pens.Black, new PointF(0, basePoinf.Y), new PointF(panel2.Width, basePoinf.Y));
+
+            }
+        }
+
+
+        private void DrawKlinePic(Graphics tempG)
+        {
             if (oneMinuteDraw.Prices.Count > 0)
             {
-                double length =  Math.Max(oneMinuteDraw.MaxPrice - min.data.last_close, Math.Abs(oneMinuteDraw.MinPrice - min.data.last_close));
+                double length = Math.Max(oneMinuteDraw.MaxPrice - min.data.last_close, Math.Abs(oneMinuteDraw.MinPrice - min.data.last_close));
 
                 int le = panel2.Height / 2;
 
                 double dis = length / le;
 
-                double disW = panel2.Width /  oneMinuteDraw.Prices.Count; //应该动态扩展
+                double disW = panel2.Width / oneMinuteDraw.Prices.Count; //应该动态扩展
 
-                g.DrawLine(Pens.Black, new Point(0, le), new Point(panel2.Width, le));
+                klineG.DrawLine(Pens.Black, new Point(0, le), new Point(panel2.Width, le));
 
                 List<PointF> points = new List<PointF>();
                 List<PointF> ave_points = new List<PointF>();
@@ -102,20 +128,35 @@ namespace StockTest
 
                 if (points.Count > 1)
                 {
-                    g.DrawLines(Pens.Green, points.ToArray());
-                    g.DrawLines(Pens.Red, ave_points.ToArray());
+                    klineG.DrawLines(Pens.Green, points.ToArray());
+                    klineG.DrawLines(Pens.Red, ave_points.ToArray());
                 }
 
 
-                List<PointF> keyPoints = new List<PointF>(); //关键点位
-                if (oneMinuteDraw.KeyPoint.Count > 0)
+                List<PointF> keyPointsBuy = new List<PointF>(); //关键点位1
+
+                List<PointF> keyPointsSel = new List<PointF>();
+
+                if (oneMinuteDraw.KeyPointBuy.Count > 0)
                 {
 
-                    for (int i = 0; i < oneMinuteDraw.KeyPoint.Count; i++)
+                    for (int i = 0; i < oneMinuteDraw.KeyPointBuy.Count; i++)
                     {
-                        int index = oneMinuteDraw.KeyPoint[i];
+                        int index = oneMinuteDraw.KeyPointBuy[i];
                         RectangleF rect = new RectangleF(points[index].X - 5, points[index].Y - 5, 10, 10);
-                        g.DrawEllipse(Pens.Red, rect);
+                        klineG.DrawEllipse(Pens.Red, rect);
+                    }
+
+                }
+
+                if (oneMinuteDraw.KeyPointSel.Count > 0)
+                {
+
+                    for (int i = 0; i < oneMinuteDraw.KeyPointSel.Count; i++)
+                    {
+                        int index = oneMinuteDraw.KeyPointSel[i];
+                        RectangleF rect = new RectangleF(points[index].X - 5, points[index].Y - 5, 10, 10);
+                        klineG.DrawEllipse(Pens.Black, rect);
                     }
 
                 }
@@ -123,12 +164,15 @@ namespace StockTest
 
                 Font f = new Font("Arial", 12, FontStyle.Regular);
 
-                g.DrawString(min.data.last_close.ToString(), f, new SolidBrush(Color.Black), new Point(0, le));
+                klineG.DrawString(min.data.last_close.ToString(), f, new SolidBrush(Color.Black), new Point(0, le));
+
+
+
 
             }
+
         }
 
-       
         private void panel3_Paint(object sender, PaintEventArgs e)
         {
 
@@ -272,6 +316,7 @@ namespace StockTest
                 bool isKeyWave = false;
 
 
+                double firstPrice = 0;
 
                 for (int i = 0; i < min.data.items.Count; i++)
                 {
@@ -289,27 +334,40 @@ namespace StockTest
                     if (i > 15) //忽略前15分钟
                     {
                         //必要条件
-                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Ave_amout[i] * 1.25)
+                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Ave_amout[i])
                         {
 
                             if (isKeyWave == false) //首次进入做标记
                             {
                                 isKeyWave = true;
+
+                                firstPrice = oneMinuteDraw.Prices[i]; 
+
                             }
                             else
                             {
-                                //判断是否为下跌趋势
 
                                 if (isKeyWave == true)
                                 {
-                                    if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] < oneMinuteDraw.Prices[i - 1]) //量增大
-                                    {
-                                        oneMinuteDraw.KeyPoint.Add(i);
 
+                                    if (oneMinuteDraw.Prices[i] < firstPrice) //下跌
+                                    {
+                                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] > oneMinuteDraw.Prices[i - 1]) //量增大
+                                        {
+
+                                            oneMinuteDraw.KeyPointBuy.Add(i);
+                                        }
+                                        else
+                                        {
+
+                                        }
                                     }
-                                    else
+                                    else 
                                     {
-
+                                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] < oneMinuteDraw.Prices[i - 1])
+                                        {
+                                            oneMinuteDraw.KeyPointSel.Add(i);
+                                        }
                                     }
                                 }
 
@@ -328,7 +386,11 @@ namespace StockTest
 
                     oneMinuteDraw.MaxPrice = oneMinuteDraw.Prices.Max();
                     oneMinuteDraw.MinPrice = oneMinuteDraw.Prices.Min();
+
+                   
                 }
+
+                DrawKlinePic(klineG);
             }
         }
 
@@ -623,6 +685,29 @@ namespace StockTest
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        PointF basePoinf = new PointF();
+
+        /// <summary>
+        /// 鼠标移动事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panel2_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isDrawStandLine == true)
+            {
+                basePoinf = new PointF(e.X, e.Y);
+                panel2.Invalidate();
+            }
+        }
+
+        bool isDrawStandLine = false;
+        private void panel2_MouseClick(object sender, MouseEventArgs e)
+        {
+            isDrawStandLine = !isDrawStandLine;
+            panel2.Invalidate(true);
         }
     }
 }
