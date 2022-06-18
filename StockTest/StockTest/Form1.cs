@@ -12,7 +12,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Threading;
-
+using Serilog;
+using System.Threading.Tasks;
 
 namespace StockTest
 {
@@ -21,9 +22,14 @@ namespace StockTest
         public Form1()
         {
             InitializeComponent();
+
+            Log = new LoggerConfiguration()
+         .WriteTo.Async(w => w.File("Logs/log-.log", rollingInterval: RollingInterval.Day))
+         .MinimumLevel.Debug()
+         .CreateLogger();
         }
 
-
+        public static ILogger Log = null;
 
         OneMinuteDraw oneMinuteDraw = new OneMinuteDraw();
 
@@ -41,8 +47,13 @@ namespace StockTest
 
         Graphics klineG = null;
 
+        string stockNum = "SZ300087";
+
+
         private void Form1_Load(object sender, EventArgs e)
         {
+
+
             oneMinuteDraw.Prices = new List<double>();
             oneMinuteDraw.Ave_prices = new List<double>();
             oneMinuteDraw.Amount = new List<double>();
@@ -61,14 +72,20 @@ namespace StockTest
 
 
 
-            string html =  GetStockOnlineInfo("SZ300087");
+            //string html = GetStockOnlineInfo(stockNum);
 
-            CalcPrice(html);
-
-
-            comboBox1.SelectedIndex = 0;
+            //CalcPrice(html);
 
 
+            //comboBox1.SelectedIndex = 0;
+
+
+            //2s后执行
+           // richTextBox1.AppendText("2s后执行数据抓取！间隔5s");
+           // System.Threading.Timer time = new System.Threading.Timer((o) =>
+           //{
+           //    QuotecInfo(stockNum);
+           //}, null, 2000, 5000);
         }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
@@ -95,6 +112,9 @@ namespace StockTest
 
         private void DrawKlinePic(Graphics tempG)
         {
+
+            klineG.Clear(Color.White);
+
             if (oneMinuteDraw.Prices.Count > 0)
             {
                 double length = Math.Max(oneMinuteDraw.MaxPrice - min.data.last_close, Math.Abs(oneMinuteDraw.MinPrice - min.data.last_close));
@@ -165,9 +185,6 @@ namespace StockTest
                 Font f = new Font("Arial", 12, FontStyle.Regular);
 
                 klineG.DrawString(min.data.last_close.ToString(), f, new SolidBrush(Color.Black), new Point(0, le));
-
-
-
 
             }
 
@@ -269,6 +286,8 @@ namespace StockTest
                 request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/chart/minute.json?symbol={stockNum}&period=1d"); //300364    //300087
                 request.Method = "Get";
                 request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                request.Headers.Add("cookie", @"device_id = 2d659df136d37948fe2cf5e7aa6a3120; s = dl1axjiys0; bid = aa9301ecf553300f6d34c465195c5698_l4cm843q; Hm_lvt_1db88642e346389874251b5a1eded6e3 = 1654688963,1654773558,1655117485,1655347102; xq_a_token = 71618bed86fb8c37819bc7e19fe00d51ec2386f8; xqat = 71618bed86fb8c37819bc7e19fe00d51ec2386f8; xq_r_token = 88812666b17c6dc5f6bdbf432fda4b49b23f7924; xq_id_token = eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTY1NzkyNzc0MywiY3RtIjoxNjU1MzYwMjI1ODQwLCJjaWQiOiJkOWQwbjRBWnVwIn0.qlvEGHIY9wFR70K9Fu_h2C5YxwPSJOAXzHCLft3bXqgW_sRVtNmzvyYvZ_OqIQluCYRiXAQya6JTlTaLAcT - dDapKL1U2 - FCfftzcn4bXP5VVFEXlJJganQWIfzTopsD80SdlZBeXM6lxosZA6H8NbxFLgSyt2Hw_jiBezZReS7qrzarC4GAugZ4TM2GQLrI_EsQlfOaYusxIG3QUA5FjJFThjMCjJTziboKquc3CVfAVs8G7oAeT - Df46KJi9ZunJ7jvWsMC7IET0E2otR9rlYSnxYKA2K2XHFk9RoTKOgFqpMwJtR9XjVQececsk32Tt1IZ18xBAHLKPdMO49Wag; u = 351655360279548; Hm_lpvt_1db88642e346389874251b5a1eded6e3 = 1655361549");
 
 
                 CookieCollection co = new CookieCollection();
@@ -277,7 +296,7 @@ namespace StockTest
                 cc.Add(co);
 
                 request.AllowAutoRedirect = false;
-                request.CookieContainer = cc;
+              //  request.CookieContainer = cc;
                 request.KeepAlive = true;
                 request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
 
@@ -300,97 +319,103 @@ namespace StockTest
 
         private void CalcPrice(string data)
         {
-            min = JsonConvert.DeserializeObject<OneMinute>(data);
-
-            if (min.data.items.Count > 0)
+            try
             {
-                oneMinuteDraw.Prices.Clear();
-                oneMinuteDraw.Ave_prices.Clear();
-                oneMinuteDraw.Amount.Clear();
+                min = JsonConvert.DeserializeObject<OneMinute>(data);
 
-                double totalAmount = 0;
-
-                oneMinuteDraw.Ave_amout.Clear();
-
-
-                bool isKeyWave = false;
-
-
-                double firstPrice = 0;
-
-                for (int i = 0; i < min.data.items.Count; i++)
+                if (min.data.items.Count > 0)
                 {
-                    oneMinuteDraw.Prices.Add(min.data.items[i].current);
-                    oneMinuteDraw.Ave_prices.Add(min.data.items[i].avg_price);
-                    oneMinuteDraw.Amount.Add(min.data.items[i].amount);
+                    oneMinuteDraw.Prices.Clear();
+                    oneMinuteDraw.Ave_prices.Clear();
+                    oneMinuteDraw.Amount.Clear();
 
-                    totalAmount += min.data.items[i].amount;
+                    double totalAmount = 0;
 
-
-                    oneMinuteDraw.Ave_amout.Add(totalAmount / oneMinuteDraw.Amount.Count);
-
+                    oneMinuteDraw.Ave_amout.Clear();
 
 
-                    if (i > 15) //忽略前15分钟
+                    bool isKeyWave = false;
+
+
+                    double firstPrice = 0;
+
+                    for (int i = 0; i < min.data.items.Count; i++)
                     {
-                        //必要条件
-                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Ave_amout[i])
+                        oneMinuteDraw.Prices.Add(min.data.items[i].current);
+                        oneMinuteDraw.Ave_prices.Add(min.data.items[i].avg_price);
+                        oneMinuteDraw.Amount.Add(min.data.items[i].amount);
+
+                        totalAmount += min.data.items[i].amount;
+
+
+                        oneMinuteDraw.Ave_amout.Add(totalAmount / oneMinuteDraw.Amount.Count);
+
+
+
+                        if (i > 15) //忽略前15分钟
                         {
-
-                            if (isKeyWave == false) //首次进入做标记
-                            {
-                                isKeyWave = true;
-
-                                firstPrice = oneMinuteDraw.Prices[i]; 
-
-                            }
-                            else
+                            //必要条件
+                            if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Ave_amout[i])
                             {
 
-                                if (isKeyWave == true)
+                                if (isKeyWave == false) //首次进入做标记
+                                {
+                                    isKeyWave = true;
+
+                                    firstPrice = oneMinuteDraw.Prices[i];
+
+                                }
+                                else
                                 {
 
-                                    if (oneMinuteDraw.Prices[i] < firstPrice) //下跌
+                                    if (isKeyWave == true)
                                     {
-                                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] > oneMinuteDraw.Prices[i - 1]) //量增大
-                                        {
 
-                                            oneMinuteDraw.KeyPointBuy.Add(i);
+                                        if (oneMinuteDraw.Prices[i] < firstPrice) //下跌
+                                        {
+                                            if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] > oneMinuteDraw.Prices[i - 1]) //量增大
+                                            {
+
+                                                oneMinuteDraw.KeyPointBuy.Add(i);
+                                            }
+                                            else
+                                            {
+
+                                            }
                                         }
                                         else
                                         {
+                                            if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] < oneMinuteDraw.Prices[i - 1])
+                                            {
+                                                oneMinuteDraw.KeyPointSel.Add(i);
+                                            }
+                                        }
+                                    }
 
-                                        }
-                                    }
-                                    else 
-                                    {
-                                        if (oneMinuteDraw.Amount[i] > oneMinuteDraw.Amount[i - 1] && oneMinuteDraw.Prices[i] < oneMinuteDraw.Prices[i - 1])
-                                        {
-                                            oneMinuteDraw.KeyPointSel.Add(i);
-                                        }
-                                    }
                                 }
-
                             }
+                            else //回落则恢复
+                            {
+                                if (isKeyWave == true)
+                                    isKeyWave = false;
+                            }
+
                         }
-                        else //回落则恢复
-                        {
-                            if (isKeyWave == true)
-                                isKeyWave = false;
-                        }
+
+                        //均量
+
+
+                        oneMinuteDraw.MaxPrice = oneMinuteDraw.Prices.Max();
+                        oneMinuteDraw.MinPrice = oneMinuteDraw.Prices.Min();
+
 
                     }
 
-                    //均量
-
-
-                    oneMinuteDraw.MaxPrice = oneMinuteDraw.Prices.Max();
-                    oneMinuteDraw.MinPrice = oneMinuteDraw.Prices.Min();
-
-                   
+                    DrawKlinePic(klineG);
                 }
-
-                DrawKlinePic(klineG);
+            }
+            catch (Exception ex)
+            {
             }
         }
 
@@ -407,9 +432,12 @@ namespace StockTest
             {
                 string stockN = info.Exchange.ToUpper() + info.Code;
 
+                stockNum = stockN;
               
                 string html = GetStockOnlineInfo(stockN);
                 CalcPrice(html);
+
+                
 
                 panel2.Invalidate();
                 panel3.Invalidate();
@@ -427,7 +455,7 @@ namespace StockTest
                 HttpWebResponse response = null;
 
                 CookieContainer cc = new CookieContainer();
-                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/pankou.json?symbol=SZ300261"); //300364    //300087
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/pankou.json?symbol={stockNum}"); //300364    //300087
                 request.Method = "Get";
                 request.ContentType = "*/*";
                 request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate; 
@@ -452,7 +480,7 @@ namespace StockTest
                 streamReader.Close();
 
                // return html;
-               richTextBox1.AppendText(html);
+               //richTextBox1.AppendText(html);
                 
                 //5档盘口
                 Pankou pankou  = JsonConvert.DeserializeObject<Pankou>(html);
@@ -480,7 +508,8 @@ namespace StockTest
             }
             catch (Exception ex)
             {
-              //  return "";
+                richTextBox1.AppendText(ex.Message);
+
             }
 
         }
@@ -493,7 +522,7 @@ namespace StockTest
                 HttpWebResponse response = null;
 
                 CookieContainer cc = new CookieContainer();
-                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/history/trade.json?symbol=SZ300261&count=10"); //300364    //300087
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/history/trade.json?symbol={stockNum}&count=10"); //300364    //300087
                 request.Method = "Get";
                 request.ContentType = "*/*";
                 request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -518,7 +547,7 @@ namespace StockTest
                 streamReader.Close();
 
                 // return html;
-                richTextBox1.AppendText(html);
+                //richTextBox1.AppendText(html);
 
 
 
@@ -558,7 +587,7 @@ namespace StockTest
 
                 long timeSpan = Common.GetTimeStamp(DateTime.Now);
 
-                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SZ300261&_={timeSpan}"); //300364    //300087
+                request = (HttpWebRequest)WebRequest.Create($"https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=SZ300364&_={timeSpan}"); //300364    //300087
                 request.Method = "Get";
                 request.ContentType = "*/*";
                 request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
@@ -582,7 +611,12 @@ namespace StockTest
                 ss.Close();
                 streamReader.Close();
 
+                //保留数据
+                Log.Information(html);
+
                 return html;
+
+
 
             }
             catch (Exception ex)
@@ -593,7 +627,7 @@ namespace StockTest
 
         private void btn_Quotec_Click(object sender, EventArgs e)
         {
-          string str =   QuotecInfo("ssss");
+            string str =   QuotecInfo(stockNum);
 
             richTextBox1.AppendText(Common.ConvertJsonString(str));
         }
@@ -708,6 +742,16 @@ namespace StockTest
         {
             isDrawStandLine = !isDrawStandLine;
             panel2.Invalidate(true);
+        }
+
+        private void btn_Analysis_Click(object sender, EventArgs e)
+        {
+            TargetAnalysis targetAnalysis = new TargetAnalysis();
+            targetAnalysis.StartPosition = FormStartPosition.CenterScreen;
+
+
+            targetAnalysis.ShowDialog();
+
         }
     }
 }

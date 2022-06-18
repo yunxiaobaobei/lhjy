@@ -43,6 +43,7 @@
             this.panel7 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.btn_Analysis = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -50,6 +51,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btn_Analysis);
             this.panel1.Controls.Add(this.btn_Quotec);
             this.panel1.Controls.Add(this.btn_trade);
             this.panel1.Controls.Add(this.btn_pankou);
@@ -66,7 +68,7 @@
             // 
             // btn_Quotec
             // 
-            this.btn_Quotec.Location = new System.Drawing.Point(8, 152);
+            this.btn_Quotec.Location = new System.Drawing.Point(111, 163);
             this.btn_Quotec.Name = "btn_Quotec";
             this.btn_Quotec.Size = new System.Drawing.Size(75, 23);
             this.btn_Quotec.TabIndex = 8;
@@ -76,7 +78,7 @@
             // 
             // btn_trade
             // 
-            this.btn_trade.Location = new System.Drawing.Point(8, 123);
+            this.btn_trade.Location = new System.Drawing.Point(111, 134);
             this.btn_trade.Name = "btn_trade";
             this.btn_trade.Size = new System.Drawing.Size(75, 23);
             this.btn_trade.TabIndex = 7;
@@ -86,7 +88,7 @@
             // 
             // btn_pankou
             // 
-            this.btn_pankou.Location = new System.Drawing.Point(8, 94);
+            this.btn_pankou.Location = new System.Drawing.Point(111, 105);
             this.btn_pankou.Name = "btn_pankou";
             this.btn_pankou.Size = new System.Drawing.Size(75, 23);
             this.btn_pankou.TabIndex = 6;
@@ -201,6 +203,16 @@
             this.panel5.Size = new System.Drawing.Size(808, 568);
             this.panel5.TabIndex = 5;
             // 
+            // btn_Analysis
+            // 
+            this.btn_Analysis.Location = new System.Drawing.Point(8, 105);
+            this.btn_Analysis.Name = "btn_Analysis";
+            this.btn_Analysis.Size = new System.Drawing.Size(75, 23);
+            this.btn_Analysis.TabIndex = 9;
+            this.btn_Analysis.Text = "指标分析";
+            this.btn_Analysis.UseVisualStyleBackColor = true;
+            this.btn_Analysis.Click += new System.EventHandler(this.btn_Analysis_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -212,7 +224,6 @@
             this.DoubleBuffered = true;
             this.Name = "Form1";
             this.Text = "Form1";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -239,6 +250,7 @@
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Button btn_Quotec;
+        private System.Windows.Forms.Button btn_Analysis;
     }
 }
 
