@@ -749,7 +749,7 @@ namespace StockTest
             TargetAnalysis targetAnalysis = new TargetAnalysis();
             targetAnalysis.StartPosition = FormStartPosition.CenterScreen;
 
-
+            targetAnalysis.WindowState = FormWindowState.Maximized;
             targetAnalysis.ShowDialog();
 
         }

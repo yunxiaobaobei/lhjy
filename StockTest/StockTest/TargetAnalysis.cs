@@ -27,12 +27,15 @@ namespace StockTest
         private void TargetAnalysis_Load(object sender, EventArgs e)
         {
 
+           
+            
+
         }
 
 
         private void btn_getHistory_Click(object sender, EventArgs e)
         {
-            dt = Common.ExcelToDataTable("D:/个人空间/LHJY/历史数据存储/300087-05mouth.csv", "300087-05mouth");
+            dt = Common.ExcelToDataTable(@"G:\量化交易\历史数据存储\300087_3year.csv", "300087_3year");
 
             
 
@@ -55,10 +58,17 @@ namespace StockTest
             IEnumerable<SmaResult> results = quotes.GetSma(20);
 
             // use results as needed for your use case (example only)
-            foreach (SmaResult r in results)
-            {
-                Console.WriteLine($"SMA on {r.Date:d} was ${r.Sma:N4}");
-            }
+            //SMA
+            //foreach (SmaResult r in results)
+            //{
+            //    Console.WriteLine($"SMA on {r.Date:d} was ${r.Sma:N4}");
+            //}
+
+            UserControl1 klineControl = new UserControl1(quoteList);
+             klineControl.Dock = DockStyle.Fill;
+            panel_Kline.Controls.Add(klineControl);
+
+
         }
 
 
@@ -71,6 +81,9 @@ namespace StockTest
 
             //最大绘制节点数
             int maxCount = panel_Kline.Width / 5; 
+
+
+
 
 
 

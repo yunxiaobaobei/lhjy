@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btn_getHistory = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.panel_volumn = new System.Windows.Forms.Panel();
             this.panel_Kline = new System.Windows.Forms.Panel();
-            this.btn_getHistory = new System.Windows.Forms.Button();
+            this.panel_volumn = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
@@ -44,44 +44,8 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1078, 100);
+            this.panel1.Size = new System.Drawing.Size(1121, 100);
             this.panel1.TabIndex = 0;
-            // 
-            // panel2
-            // 
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
-            this.panel2.Location = new System.Drawing.Point(0, 100);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(200, 460);
-            this.panel2.TabIndex = 1;
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.panel_Kline);
-            this.panel3.Controls.Add(this.panel_volumn);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(200, 100);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(878, 460);
-            this.panel3.TabIndex = 2;
-            // 
-            // panel_volumn
-            // 
-            this.panel_volumn.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel_volumn.Location = new System.Drawing.Point(0, 360);
-            this.panel_volumn.Name = "panel_volumn";
-            this.panel_volumn.Size = new System.Drawing.Size(878, 100);
-            this.panel_volumn.TabIndex = 0;
-            this.panel_volumn.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_volumn_Paint);
-            // 
-            // panel_Kline
-            // 
-            this.panel_Kline.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel_Kline.Location = new System.Drawing.Point(0, 0);
-            this.panel_Kline.Name = "panel_Kline";
-            this.panel_Kline.Size = new System.Drawing.Size(878, 360);
-            this.panel_Kline.TabIndex = 1;
-            this.panel_Kline.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Kline_Paint);
             // 
             // btn_getHistory
             // 
@@ -93,11 +57,47 @@
             this.btn_getHistory.UseVisualStyleBackColor = true;
             this.btn_getHistory.Click += new System.EventHandler(this.btn_getHistory_Click);
             // 
+            // panel2
+            // 
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panel2.Location = new System.Drawing.Point(0, 100);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(200, 528);
+            this.panel2.TabIndex = 1;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.panel_Kline);
+            this.panel3.Controls.Add(this.panel_volumn);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel3.Location = new System.Drawing.Point(200, 100);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(921, 528);
+            this.panel3.TabIndex = 2;
+            // 
+            // panel_Kline
+            // 
+            this.panel_Kline.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel_Kline.Location = new System.Drawing.Point(0, 0);
+            this.panel_Kline.Name = "panel_Kline";
+            this.panel_Kline.Size = new System.Drawing.Size(921, 458);
+            this.panel_Kline.TabIndex = 1;
+            this.panel_Kline.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_Kline_Paint);
+            // 
+            // panel_volumn
+            // 
+            this.panel_volumn.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel_volumn.Location = new System.Drawing.Point(0, 458);
+            this.panel_volumn.Name = "panel_volumn";
+            this.panel_volumn.Size = new System.Drawing.Size(921, 70);
+            this.panel_volumn.TabIndex = 0;
+            this.panel_volumn.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_volumn_Paint);
+            // 
             // TargetAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1078, 560);
+            this.ClientSize = new System.Drawing.Size(1121, 628);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
