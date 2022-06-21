@@ -47,31 +47,32 @@ namespace StockTest
 
         //adx指标
         List<AdxResult> adxResults = null;
+        //adl指标
+        List<AdlResult> adlResults = null;
+
+        TargetEnum targetType = TargetEnum.Adl;
+
+
 
         private void UserControl1_Load(object sender, EventArgs e)
         {
-            backImg = new Bitmap(this.Width, this.Height);
-            backImgraphics = Graphics.FromImage(backImg);
-            backImgraphics.Clear(Color.GreenYellow);
+            //backImg = new Bitmap(this.Width, this.Height);
+            //backImgraphics = Graphics.FromImage(backImg);
+            //backImgraphics.Clear(Color.GreenYellow);
 
             //获取指标曲线
             adxResults = quoteList.GetAdx(14).ToList();
-
+            adlResults = quoteList.GetAdl().ToList();
             
-           
-
+           foreach(var s in Enum.GetNames(typeof(TargetEnum)))
+            {
+                targetMenu.Items.Add(s);
+            }
 
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-           // e.Graphics.DrawImage(backImg, Point.Empty);
-
-            //if (isMoveDraw && this.DoubleBuffered == false)
-            //    Console.Write("OnPaintBackground");
-
-
-
         }
 
       
@@ -84,10 +85,6 @@ namespace StockTest
 
             g.Clear(Color.White);
 
-            g.DrawLine(Pens.Green, new Point(0, 40), new Point(50, 80));
-
-
-
             int disMargion = 20;  //绘制区域的上下间距
             int volumnHeight = 200; //量能图的高度
             int kwidth = 5; //K线宽度
@@ -95,8 +92,6 @@ namespace StockTest
 
             //绘制边框
             g.DrawRectangle(Pens.Black, new Rectangle(0, 0, this.Width - 1, this.Height - 1 ));
-
-          
 
             int maxCount = this.Width / kwidth; //5个橡树一个点
 
@@ -231,81 +226,114 @@ namespace StockTest
 
 
             //绘制指标
-            double maxAdx = 0;
-            double minAdx = 0;
-            tempTarget.ForEach((x) =>
-           {
-               if (x.Adx > maxAdx)
-                   maxAdx = (double)x.Adx;
-           }
-            );
+           // double maxAdx = 0;
+           // double minAdx = 0;
+           // tempTarget.ForEach((x) =>
+           //{
+           //    if (x.Adx > maxAdx)
+           //        maxAdx = (double)x.Adx;
+           //} );
 
-            minAdx = maxAdx;
-            tempTarget.ForEach((x) =>
-           {
-               if (x.Adx < minAdx)
-                   minAdx = (double)x.Adx;
-           }
+           // minAdx = maxAdx;
+           // tempTarget.ForEach((x) =>
+           //{
+           //    if (x.Adx < minAdx)
+           //        minAdx = (double)x.Adx;
+           //});
 
-                );
+           // double adxRange = maxAdx - minAdx; 
+           // float adxPerPix = (this.Height - volumnHeight - disMargion * 2) * 1F / (float)adxRange;
+            //List<PointF> adxPoints = new List<PointF>();
+            // for (int i = 0; i < tempTarget.Count; i++)
+            // {
 
-            double adxRange = maxAdx - minAdx; 
+            //     if (tempTarget[i].Adx != null)
+            //     {
+            //         adxPoints.Add(new PointF(i * kwidth, (float)(maxAdx - tempTarget[i].Adx) * adxPerPix));
+            //     }
+            //     else
+            //     {
+            //         adxPoints.Add(new PointF(i * kwidth, 0));
+            //     }
+            // }
 
-            float adxPerPix = (this.Height - volumnHeight - disMargion * 2) * 1F / (float)adxRange;
-
-            List<PointF> adxPoints = new List<PointF>();    
-
-            for (int i = 0; i < tempTarget.Count; i++)
-            {
-
-                if (tempTarget[i].Adx != null)
-                {
-                    adxPoints.Add(new PointF(i * kwidth, (float)(maxAdx - tempTarget[i].Adx) * adxPerPix));
-                }
-                else
-                {
-                    adxPoints.Add(new PointF(i * kwidth, 0));
-                }
-            }
-
+            List<PointF> adxPoints = new List<PointF>();
+            adxPoints = CalcTargetPoints((this.Height - volumnHeight - disMargion * 2) * 1F, kwidth, maxCount, targetType);
             g.DrawLines(Pens.Blue, adxPoints.ToArray());
-
-
-
-
-            //// decimal maxVolum = 0;
-            //// tempList.ForEach(  (x) =>
-            //// {
-            ////     if (x.Volume > maxVolum)
-            ////         maxVolum = x.Volume;
-            //// }
-            ////     );
-
-            //// decimal minVolumn = maxVolum;
-            //// tempList.ForEach((x) =>
-            ////{
-            ////    if(x.Volume < minVolumn)
-            ////        minVolumn = x.Volume;
-            ////});
-
-            //// //量能区间
-            //// decimal volumnRange = maxVolum - minVolumn;
-
-
-            //// float volumnPerPix = volumnHeight * 1F / (float)maxVolum;
-
-            ////绘制量能图
-            //for (int i = 0; i < tempList.Count; i++)
-            //{
-
-            //    if(tempList[i].)
-
-            //}
-
 
         }
 
-        private void UserControl1_MouseDown(object sender, MouseEventArgs e)
+        //计算指标坐标点
+        private List<PointF> CalcTargetPoints(float drawHeight, float kwidth, int maxcount,  TargetEnum targetType)
+        {
+
+            Console.WriteLine("当前指标:" + targetType);
+
+            List<PointF> points = new List<PointF>();
+
+            try
+            {
+                List<Quote> tempList = new List<Quote>();
+                Quote[] tempArray = new Quote[maxcount];
+                Array.Copy(quoteList.ToArray(), 0, tempArray, 0, maxcount);
+                tempList.AddRange(tempArray);
+
+                List<double?> targetRes = new List<double?>();
+
+                for (int i = 0; i < maxcount; i++)
+                {
+                    switch (targetType)
+                    {
+                        case TargetEnum.Adx:
+                            targetRes.Add(adxResults[i].Adx);
+                            break;
+                        case TargetEnum.Adl:
+                            targetRes.Add(adlResults[i].Adl);
+                            break;
+                    }
+                }
+
+                double maxAdx = 0;
+                double minAdx = 0;
+                targetRes.ForEach((x) =>
+                {
+                    if (x > maxAdx)
+                        maxAdx = (double)x;
+                });
+
+                minAdx = maxAdx;
+                targetRes.ForEach((x) =>
+                {
+                    if (x < minAdx)
+                        minAdx = (double)x;
+                });
+
+                double adxRange = maxAdx - minAdx;
+
+                float adxPerPix = drawHeight / (float)adxRange;
+
+                for (int i = 0; i < targetRes.Count; i++)
+                {
+
+                    if (targetRes[i] != null)
+                    {
+                        points.Add(new PointF(i * kwidth, (float)(maxAdx - targetRes[i]) * adxPerPix));
+                    }
+                    else
+                    {
+                        points.Add(new PointF(i * kwidth, 0));
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+            }
+
+            return points;
+        }
+
+            private void UserControl1_MouseDown(object sender, MouseEventArgs e)
         {
             
         }
@@ -322,9 +350,19 @@ namespace StockTest
 
         private void UserControl1_MouseClick(object sender, MouseEventArgs e)
         {
-            isMoveDraw = !isMoveDraw;
-        }
+            if (e.Button == MouseButtons.Left)
+            {
+                isMoveDraw = !isMoveDraw;
+            }
+            else if (e.Button == MouseButtons.Right) //右键菜单
+            {
 
+                Point temp = new Point(e.X, e.Y);
+
+                targetMenu.Show(PointToScreen(temp));
+
+            }
+        }
 
         private List<RectangleF> getKlineRect(List<Quote> list)
         {
@@ -353,5 +391,28 @@ namespace StockTest
             return ret;
         }
 
+
+        /// <summary>
+        /// 修改叠加指标
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void targetMenu_MouseClick(object sender, MouseEventArgs e)
+        {
+            //string name = targetMenu.
+            //targetType = TargetEnum.Adl;
+            //ContextMenuStrip menu = sender as ContextMenuStrip;
+            //MessageBox.Show(menu.Text);
+        }
+
+        private void targetMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            string name = e.ClickedItem.ToString();
+
+            targetType = (TargetEnum)Enum.Parse(typeof(TargetEnum), name);
+
+            this.Invalidate(true);
+
+        }
     }
 }

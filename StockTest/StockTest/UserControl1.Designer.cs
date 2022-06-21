@@ -28,7 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.targetMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.SuspendLayout();
+            // 
+            // targetMenu
+            // 
+            this.targetMenu.Name = "targetMenu";
+            this.targetMenu.Size = new System.Drawing.Size(181, 26);
+            this.targetMenu.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.targetMenu_ItemClicked);
+            this.targetMenu.MouseClick += new System.Windows.Forms.MouseEventHandler(this.targetMenu_MouseClick);
             // 
             // UserControl1
             // 
@@ -46,5 +55,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.ContextMenuStrip targetMenu;
     }
 }

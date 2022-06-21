@@ -88,7 +88,7 @@ namespace StockTest
                     //strConn = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + pathName + ";Extended Properties=\"Excel 8.0;HDR=YES;IMEX=1\"";
                     break;
                 case ".CSV":
-                    strConn = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + sheetName + ";Extended Properties='Text;FMT=Delimited;HDR=YES;'";
+                    strConn = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + sheetName + ";Extended Properties='Excel 8.0;FMT=Delimited;HDR=YES;'";
                     symbol = 1;
                     break;
                 default:

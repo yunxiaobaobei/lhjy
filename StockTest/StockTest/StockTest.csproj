@@ -83,6 +83,7 @@
     <Compile Include="TargetAnalysis.Designer.cs">
       <DependentUpon>TargetAnalysis.cs</DependentUpon>
     </Compile>
+    <Compile Include="TargetEnum.cs" />
     <Compile Include="Trade.cs" />
     <Compile Include="UserControl1.cs">
       <SubType>UserControl</SubType>

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Skender.Stock.Indicators;
 using System.Data;
+using System.IO;
 
 namespace StockTest
 {
@@ -35,40 +36,35 @@ namespace StockTest
 
         private void btn_getHistory_Click(object sender, EventArgs e)
         {
-            dt = Common.ExcelToDataTable(@"G:\量化交易\历史数据存储\300087_3year.csv", "300087_3year");
 
-            
-
-            for (int i = 0; i < dt.Rows.Count; i++)
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Quote s = new Quote();
+                string dataFile = openFileDialog.FileName;
+                string cardName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                dt = Common.ExcelToDataTable(dataFile, cardName);
 
-                s.Volume = Decimal.Parse(dt.Rows[i]["volume"].ToString());
-                s.Open = Decimal.Parse(dt.Rows[i]["open"].ToString());
-                s.Close = Decimal.Parse(dt.Rows[i]["close"].ToString());
-                s.High = Decimal.Parse(dt.Rows[i]["high"].ToString());
-                s.Low = Decimal.Parse(dt.Rows[i]["low"].ToString());
-                s.Date = (DateTime)dt.Rows[i]["date"];
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Quote s = new Quote();
 
-                quoteList.Add(s);
+                    s.Volume = Decimal.Parse(dt.Rows[i]["volume"].ToString());
+                    s.Open = Decimal.Parse(dt.Rows[i]["open"].ToString());
+                    s.Close = Decimal.Parse(dt.Rows[i]["close"].ToString());
+                    s.High = Decimal.Parse(dt.Rows[i]["high"].ToString());
+                    s.Low = Decimal.Parse(dt.Rows[i]["low"].ToString());
+                    s.Date = (DateTime)dt.Rows[i]["date"];
+                    quoteList.Add(s);
+                }
+
+                //IEnumerable<Quote> quotes = quoteList;
+                //IEnumerable<SmaResult> results = quotes.GetSma(20);
+
+                UserControl1 klineControl = new UserControl1(quoteList);
+                klineControl.Dock = DockStyle.Fill;
+                panel_Kline.Controls.Add(klineControl);
+
             }
-
-            IEnumerable<Quote> quotes = quoteList;
-
-            IEnumerable<SmaResult> results = quotes.GetSma(20);
-
-            // use results as needed for your use case (example only)
-            //SMA
-            //foreach (SmaResult r in results)
-            //{
-            //    Console.WriteLine($"SMA on {r.Date:d} was ${r.Sma:N4}");
-            //}
-
-            UserControl1 klineControl = new UserControl1(quoteList);
-             klineControl.Dock = DockStyle.Fill;
-            panel_Kline.Controls.Add(klineControl);
-
-
         }
 
 
