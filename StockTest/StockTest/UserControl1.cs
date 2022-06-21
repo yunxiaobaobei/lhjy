@@ -52,7 +52,10 @@ namespace StockTest
 
         TargetEnum targetType = TargetEnum.Adl;
 
+        //均量线
+        List<double> aveVolumn = new List<double>();
 
+      static  int kwidth = 4; //K线宽度
 
         private void UserControl1_Load(object sender, EventArgs e)
         {
@@ -69,6 +72,33 @@ namespace StockTest
                 targetMenu.Items.Add(s);
             }
 
+
+            Console.WriteLine("当前指标:" + targetType);
+
+            this.MouseWheel += My_MouseWheel;
+        }
+
+        private void My_MouseWheel(object sender, MouseEventArgs e)
+        {
+            Console.WriteLine(e.Delta);
+
+            if (e.Delta > 0)
+            {
+                if (kwidth >= 6)
+                    kwidth = 6;
+                else
+                    kwidth++;
+            }
+
+            if (e.Delta < 0)
+            {
+                if (kwidth <= 3)
+                    kwidth = 3;
+                else
+                    kwidth--;
+            }
+
+            this.Invalidate();
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
@@ -87,13 +117,16 @@ namespace StockTest
 
             int disMargion = 20;  //绘制区域的上下间距
             int volumnHeight = 200; //量能图的高度
-            int kwidth = 5; //K线宽度
-            int kPandding = 2; //K点间隔
+           // int kwidth = 5; //K线宽度
+            int kPandding = 1; //K点间隔
 
             //绘制边框
             g.DrawRectangle(Pens.Black, new Rectangle(0, 0, this.Width - 1, this.Height - 1 ));
 
             int maxCount = this.Width / kwidth; //5个橡树一个点
+
+            if(maxCount > quoteList.Count)
+                maxCount = quoteList.Count;
 
             List<Quote> tempList = new List<Quote>();
             Quote[] tempArray = new Quote[maxCount];
@@ -257,19 +290,81 @@ namespace StockTest
             //     }
             // }
 
-            List<PointF> adxPoints = new List<PointF>();
-            adxPoints = CalcTargetPoints((this.Height - volumnHeight - disMargion * 2) * 1F, kwidth, maxCount, targetType);
-            g.DrawLines(Pens.Blue, adxPoints.ToArray());
+            
 
+
+            List<PointF> adxPoints = new List<PointF>();
+
+            adxPoints = CalcAveVolumnPoints(maxCount, kwidth, this.Height - volumnHeight ,(double)maxVolum, volumnPerPix, 5);
+            if(adxPoints.Count > 0)
+                g.DrawLines(Pens.Blue, adxPoints.ToArray());
+
+
+
+            adxPoints = CalcTargetPoints((this.Height - volumnHeight - disMargion * 2) * 1F, kwidth, maxCount, targetType);
+          
+            if(adxPoints.Count > 0)
+                g.DrawLines(Pens.Blue, adxPoints.ToArray());
+
+        }
+
+
+        /// <summary>
+        /// 计算均量线
+        /// </summary>
+        /// <param name="maxCount">当前k线点数</param>
+        /// <param name="aveRange">均量级别 默认1日  5则为5日均量</param>
+        private List<PointF> CalcAveVolumnPoints(int maxCount, int kwdith, float drawHeght ,double maxVolumn, float volumnPerPix, int aveRange = 1)
+        {
+
+            List<PointF> points = new List<PointF>();
+
+            List<double> aveVolumn = new List<double>();
+
+            double totalVolumn = 0;
+            for (int i = 0; i < maxCount; i++)
+            {
+                if (aveRange == 1)
+                {
+                    totalVolumn += (double)quoteList[i].Volume;
+                    aveVolumn.Add(totalVolumn / (i + 1));
+
+                    points.Add(new PointF(i * kwdith, drawHeght + (float)(maxVolumn - aveVolumn[i]) * volumnPerPix));
+                }
+                else
+                {
+                    if (i < aveRange)
+                    {
+                        aveVolumn.Add(0);  //不具备参考价值
+                        totalVolumn += (double)quoteList[i].Volume;
+                        points.Add(new PointF(i * kwdith, 0));
+
+                    }
+                    else
+                    {
+                        totalVolumn += (double)quoteList[i].Volume;
+                        totalVolumn -= (double)quoteList[i - aveRange].Volume;
+                        aveVolumn.Add( totalVolumn / aveRange);
+
+                        //计算坐标点
+                        points.Add(new PointF(i * kwdith, drawHeght + (float)(maxVolumn - aveVolumn[i]) * volumnPerPix));
+
+                    }
+                }
+            }
+
+            return points;
         }
 
         //计算指标坐标点
         private List<PointF> CalcTargetPoints(float drawHeight, float kwidth, int maxcount,  TargetEnum targetType)
         {
 
-            Console.WriteLine("当前指标:" + targetType);
 
             List<PointF> points = new List<PointF>();
+
+            if (targetType == TargetEnum.None)
+                return points;
 
             try
             {
@@ -411,8 +506,12 @@ namespace StockTest
 
             targetType = (TargetEnum)Enum.Parse(typeof(TargetEnum), name);
 
+            Console.WriteLine("当前指标:" + targetType);
+
+
             this.Invalidate(true);
 
         }
+
     }
 }
