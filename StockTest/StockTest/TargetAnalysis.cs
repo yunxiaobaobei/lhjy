@@ -42,7 +42,12 @@ namespace StockTest
             {
                 string dataFile = openFileDialog.FileName;
                 string cardName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+
+
                 dt = Common.ExcelToDataTable(dataFile, cardName);
+
+                if (dt == null)
+                    return;
 
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {

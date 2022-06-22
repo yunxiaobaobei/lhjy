@@ -50,7 +50,7 @@ namespace StockTest
         //adl指标
         List<AdlResult> adlResults = null;
 
-        TargetEnum targetType = TargetEnum.Adl;
+        TargetEnum targetType = TargetEnum.None;
 
         //均量线
         List<double> aveVolumn = new List<double>();
@@ -202,6 +202,18 @@ namespace StockTest
 
             float volumnPerPix = volumnHeight * 1F / (float)maxVolum;
 
+            //基准指标量
+            Quote baseQuote = new Quote();
+            int analysisCount = 0; //分析计数
+            float pricePercent = 0.1F; //价格偏离值
+            bool moveDirection = true; //默认正向移动
+
+            bool isBuy = false; //当前是否已经买入
+
+            DealInfo dealInfo = new DealInfo();
+            dealInfo.RateOfDeal = new List<double>();
+            dealInfo.InitMoney = 10000;
+            
 
             //单独绘制k线
             for (int i = 0; i < tempList.Count; i++)
@@ -210,42 +222,160 @@ namespace StockTest
                 {
                     RectangleF temp = new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, kwidth - kPandding, (float)(tempList[i].Open - tempList[i].Close) * pricePerPix);
 
-
                     //绘制影线
-                    g.DrawLine(Pens.Green, new PointF(i * kwidth + kwidth / 2, disMargion + (float)(maxPrice - tempList[i].High) * pricePerPix), new PointF(i * kwidth + kwidth / 2, disMargion +  (float)(maxPrice - tempList[i].Low) * pricePerPix));
-
+                    g.DrawLine(Pens.Gray, new PointF(i * kwidth + kwidth / 2, disMargion + (float)(maxPrice - tempList[i].High) * pricePerPix), new PointF(i * kwidth + kwidth / 2, disMargion + (float)(maxPrice - tempList[i].Low) * pricePerPix));
 
                     //绘制
                     //g.DrawRectangles(Pens.Green, new RectangleF[] { temp });
-                    g.FillRectangles(new SolidBrush(Color.Green), new RectangleF[] { temp});
+                    g.FillRectangles(new SolidBrush(Color.Gray), new RectangleF[] { temp });
 
-
-                    temp = new RectangleF(i * kwidth, this.Height - volumnHeight + (float)(maxVolum - tempList[i].Volume) * volumnPerPix, kwidth - kPandding,  (float)tempList[i].Volume * volumnPerPix);
+                    temp = new RectangleF(i * kwidth, this.Height - volumnHeight + (float)(maxVolum - tempList[i].Volume) * volumnPerPix, kwidth - kPandding, (float)tempList[i].Volume * volumnPerPix);
                     //绘制量能
-                    g.FillRectangles(new SolidBrush(Color.Green), new RectangleF[] { temp});
-                   
+                    g.FillRectangles(new SolidBrush(Color.Gray), new RectangleF[] { temp });
+
                 }
                 else
                 {
                     RectangleF temp = new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, kwidth - kPandding, (float)(tempList[i].Close - tempList[i].Open) * pricePerPix);
 
                     //绘制影线
-                    g.DrawLine(Pens.Red, new PointF(i * kwidth + kwidth / 2,disMargion +  (float)(maxPrice - tempList[i].High) * pricePerPix), new PointF(i * kwidth + kwidth / 2, disMargion  + (float)(maxPrice - tempList[i].Low) * pricePerPix));
+                    g.DrawLine(Pens.Silver, new PointF(i * kwidth + kwidth / 2, disMargion + (float)(maxPrice - tempList[i].High) * pricePerPix), new PointF(i * kwidth + kwidth / 2, disMargion + (float)(maxPrice - tempList[i].Low) * pricePerPix));
 
 
                     //绘制
                     //g.DrawRectangles(Pens.Red, new RectangleF[] { temp });
-                    g.FillRectangles(new SolidBrush(Color.Red), new RectangleF[] { temp });
+                    g.FillRectangles(new SolidBrush(Color.Silver), new RectangleF[] { temp });
 
                     temp = new RectangleF(i * kwidth, this.Height - volumnHeight + (float)(maxVolum - tempList[i].Volume) * volumnPerPix, kwidth - kPandding, (float)tempList[i].Volume * volumnPerPix);
                     //绘制量能
-                    g.FillRectangles(new SolidBrush(Color.Red), new RectangleF[] { temp });
+                    g.FillRectangles(new SolidBrush(Color.Silver), new RectangleF[] { temp });
                 }
 
+                //基于量
 
-               
+                if (i > 0)
+                {
+                    //终止
+                    if (isBuy == true)
+                    {
+                        double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+                        if (rate < -0.1)
+                        {
+                            isBuy = false;
+                            dealInfo.RateOfDeal.Add(rate);
+
+                            //绘制当前点位
+                            g.FillEllipse(new SolidBrush(Color.Yellow), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+                        }
+                    }
+
+                    if (tempList[i].Volume > tempList[i - 1].Volume)
+                    {
+                        if (analysisCount == 0)
+                        {
+                            if (tempList[i].Close >= tempList[i - 1].Close)
+                                moveDirection = true;
+                            else
+                                moveDirection = false;
+
+                            baseQuote = tempList[i - 1];
+                        }
+                        else
+                        {
+                            if (moveDirection == true)
+                            {
+                                //反向 且 偏离值符合预期
+                                if (tempList[i].Close < tempList[i - 1].Close && (((float)(tempList[i].Close - baseQuote.Close) / ((float)baseQuote.Close * .1)) > .1))
+                                {
+                                    //绘制当前节点
+                                    g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                    if (isBuy == true)
+                                    {
+                                        isBuy = false;
+                                        g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                        //计算比例
+
+                                        double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+                                        
+                                        dealInfo.RateOfDeal.Add(rate);
+
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (tempList[i].Close > tempList[i - 1].Close && ((Math.Abs((float)(tempList[i].Close - baseQuote.Close))/ ((float)baseQuote.Close * .1)) > .2)) // 偏移值大于.2
+                                {
+                                    //绘制当前节点
+                                    g.FillEllipse(new SolidBrush(Color.Green), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                    if (isBuy == false)
+                                    {
+                                        isBuy = true;
+                                        g.FillEllipse(new SolidBrush(Color.Pink), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                        dealInfo.Buy = tempList[i];
+                                    }
+                                }
+                            }
+                        }
+                        analysisCount++;
+                    }
+                    else
+                    {
+                        if (analysisCount > 0)
+                        {
+
+                            if (moveDirection == true)
+                            {
+                                if (((float)(tempList[i].Close - baseQuote.Close) / ((float)baseQuote.Close * .1)) > .1)
+                                {
+                                    g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                    if (isBuy == true)
+                                    {
+                                        isBuy = false;
+                                        //绘制当前点位
+                                        g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                        double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+
+                                        dealInfo.RateOfDeal.Add(rate);
+                                    }
+                                }
+                            }
+                            else  //反向移动
+                            {
+                                if ((Math.Abs((float)(tempList[i].Close - baseQuote.Close)) / ((float)baseQuote.Close * .1)) > .2)
+                                {
+                                    g.FillEllipse(new SolidBrush(Color.Green), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+
+                                    if (isBuy == false)
+                                    {
+                                        isBuy = true;
+                                        g.FillEllipse(new SolidBrush(Color.Pink), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Open) * pricePerPix, 5, 5));
+                                        dealInfo.Buy = tempList[i];
+                                    }
+                                }
+                            }
+
+                            analysisCount = 0;
+                        }
+                        else //不具备分析条件
+                        { 
+
+
+                        }
+                    }
+
+                }
+                else
+                {
+                    baseQuote = tempList[i];
+                }
             }
-
             #endregion
 
             //绘制观察线
@@ -257,49 +387,11 @@ namespace StockTest
 
             }
 
-
-            //绘制指标
-           // double maxAdx = 0;
-           // double minAdx = 0;
-           // tempTarget.ForEach((x) =>
-           //{
-           //    if (x.Adx > maxAdx)
-           //        maxAdx = (double)x.Adx;
-           //} );
-
-           // minAdx = maxAdx;
-           // tempTarget.ForEach((x) =>
-           //{
-           //    if (x.Adx < minAdx)
-           //        minAdx = (double)x.Adx;
-           //});
-
-           // double adxRange = maxAdx - minAdx; 
-           // float adxPerPix = (this.Height - volumnHeight - disMargion * 2) * 1F / (float)adxRange;
-            //List<PointF> adxPoints = new List<PointF>();
-            // for (int i = 0; i < tempTarget.Count; i++)
-            // {
-
-            //     if (tempTarget[i].Adx != null)
-            //     {
-            //         adxPoints.Add(new PointF(i * kwidth, (float)(maxAdx - tempTarget[i].Adx) * adxPerPix));
-            //     }
-            //     else
-            //     {
-            //         adxPoints.Add(new PointF(i * kwidth, 0));
-            //     }
-            // }
-
-            
-
-
             List<PointF> adxPoints = new List<PointF>();
 
             adxPoints = CalcAveVolumnPoints(maxCount, kwidth, this.Height - volumnHeight ,(double)maxVolum, volumnPerPix, 5);
             if(adxPoints.Count > 0)
                 g.DrawLines(Pens.Blue, adxPoints.ToArray());
-
-
 
             adxPoints = CalcTargetPoints((this.Height - volumnHeight - disMargion * 2) * 1F, kwidth, maxCount, targetType);
           
@@ -359,8 +451,6 @@ namespace StockTest
         //计算指标坐标点
         private List<PointF> CalcTargetPoints(float drawHeight, float kwidth, int maxcount,  TargetEnum targetType)
         {
-
-
             List<PointF> points = new List<PointF>();
 
             if (targetType == TargetEnum.None)
@@ -465,12 +555,8 @@ namespace StockTest
 
             try
             {
-
-
                 if (list.Count > 0)
                 {
-
-
                 }
                 else
                 {
@@ -500,6 +586,11 @@ namespace StockTest
             //MessageBox.Show(menu.Text);
         }
 
+        /// <summary>
+        /// 修改叠加指标
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void targetMenu_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
             string name = e.ClickedItem.ToString();
