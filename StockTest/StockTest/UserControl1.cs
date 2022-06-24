@@ -419,106 +419,203 @@ namespace StockTest
 
                     #region  策略2
 
-                    
 
-                    if (i > 5)
+                   
+                    if (i > 47)  //将前一日的K线纳入分析
                     {
 
+
+
+
                         //做止盈止损
-                        if (isBuy == true)
+                        //if (isBuy == true)
+                        //{
+                        //    double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+                        //    if (rate < -0.1)
+                        //    {
+                        //        isBuy = false;
+                        //        dealInfo.RateOfDeal.Add(rate);
+
+                        //        //绘制当前点位
+                        //        g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+                        //    }
+
+                        //    else 
+                        //    {
+
+                        //        //寻找出场点
+                        //        if (tempList[i].Close > tempList[i - 1].Close)
+                        //        {
+                        //            if (analysisCount == 0)
+                        //            {
+                        //                baseQuote = tempList[i];
+                        //            }
+
+                        //            analysisCount++;
+                        //        }
+                        //        else
+                        //        {
+                        //            //配合量能条件
+                        //            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+
+                        //            isBuy = false;
+
+                        //            analysisCount = 0;
+                        //        }
+
+
+                        //        //止盈
+                        //        if (rate > 0.5)
+                        //        {
+
+                        //            isBuy = false;
+
+                        //            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+
+                        //        }
+                        //    }
+
+
+
+                        //}
+
+                        //else  ////确定入场点
+                        //{
+                        //    if (tempList[i].Close < tempList[i - 1].Close)
+                        //    {
+                        //        if (analysisCount == 0)
+                        //        {
+                        //            baseQuote = tempList[i - 1];
+                        //        }
+
+                        //        analysisCount++;
+                        //    }
+                        //    else
+                        //    {
+                        //        if (analysisCount > 0)
+                        //        {
+                        //            //加入量能条件, 小于5日均量
+                        //            //decimal fiveAveVolumn = 0;
+                        //            //for (int j = i - 5; j < i; j++)
+                        //            //{
+                        //            //    fiveAveVolumn += tempList[j].Volume;
+                        //            //}
+
+                        //            //if (tempList[i].Volume < fiveAveVolumn / 5)
+                        //            //{
+
+                        //            //    if (isBuy == false)
+                        //            //    {
+                        //            //        g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                        //            //        isBuy = true;
+                        //            //        dealInfo.Buy = tempList[i];
+                        //            //    }
+                        //            //}
+
+                        //            //计算量能是否在低位
+
+
+
+
+                        //            analysisCount = 0;
+                        //        }
+                        //        else
+                        //        {
+
+                        //        }
+                        //    }
+                        //}
+
+                        if (analysisCount > 0)
                         {
-                            double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
-                            if (rate < -0.1)
+                            if (moveDirection == true)
                             {
-                                isBuy = false;
-                                dealInfo.RateOfDeal.Add(rate);
-
-                                //绘制当前点位
-                                g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-                            }
-
-                            else 
-                            {
-
-                                //寻找出场点
-                                if (tempList[i].Close > tempList[i - 1].Close)
+                                if (tempList[i].Volume < tempList[i - 1].Volume)
                                 {
-                                    if (analysisCount == 0)
-                                    {
-                                        baseQuote = tempList[i];
-                                    }
-
-                                    analysisCount++;
+                                    g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                    analysisCount = 0;
+                                    moveDirection = false;
                                 }
                                 else
                                 {
-                                    //配合量能条件
-                                    g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-
-                                    isBuy = false;
-
-                                    analysisCount = 0;
+                                    if (tempList[i].Open > tempList[i].Close)
+                                    {
+                                        g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                        analysisCount = 0;
+                                        moveDirection = false;
+                                    }
                                 }
 
-
-                                //止盈
-                                if (rate > 0.5)
-                                {
-
-                                    isBuy = false;
-
-                                    g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-
-                                }
-                            }
-
-
-                           
-                        }
-
-                        else  ////确定入场点
-                        {
-                            if (tempList[i].Close < tempList[i - 1].Close)
-                            {
-                                if (analysisCount == 0)
-                                {
-                                    baseQuote = tempList[i - 1];
-                                }
-
-                                analysisCount++;
                             }
                             else
                             {
-                                if (analysisCount > 0)
+                                if (tempList[i].Volume < tempList[i - 1].Volume && tempList[i].Low > tempList[i - 1].Low)
                                 {
-                                    //加入量能条件, 小于5日均量
-                                    decimal fiveAveVolumn = 0;
-                                    for (int j = i - 5; j < i; j++)
-                                    {
-                                        fiveAveVolumn += tempList[j].Volume;
-                                    }
-
-                                    if (tempList[i].Volume < fiveAveVolumn / 5)
-                                    {
-
-                                        if (isBuy == false)
-                                        {
-                                            g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-                                            isBuy = true;
-                                            dealInfo.Buy = tempList[i];
-                                        }
-                                    }
                                     analysisCount = 0;
-                                }
-                                else
-                                {
+                                    g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
 
                                 }
                             }
                         }
+
+
+                        //判断量能是否在高位
+                        List<Quote> oneDayVolumnList = new List<Quote>();
+                        Quote[] oneDayTempVolumn = new Quote[48];
+
+                        Array.Copy(tempList.ToArray(), i - 47, oneDayTempVolumn, 0, oneDayTempVolumn.Length);
+
+                        oneDayVolumnList.AddRange(oneDayTempVolumn);
+
+                        //最大6根K线
+                        List<Quote> maxFiveVolumn = new List<Quote>();
+                        List<Quote> minFiveVolumn = new List<Quote>();
+
+                        oneDayVolumnList.Sort(delegate (Quote x, Quote y)
+                        {
+                            return x.Volume.CompareTo(y.Volume);
+                        });
+
+                        for (int j = 0; j < 6; j++)
+                        {
+                            minFiveVolumn.Add(oneDayVolumnList[j]);
+                            maxFiveVolumn.Add(oneDayVolumnList[48 - j - 1]);
+                        }
+
+                        int index = maxFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
+                        if (index != -1)
+                        {
+                            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                            if (analysisCount == 0)
+                            {
+                                if (tempList[i].Open < tempList[i].Close) //正向
+                                {
+
+                                    analysisCount++;
+                                    moveDirection = true;
+                                }
+                                else
+                                {
+                                    analysisCount++;
+                                    moveDirection = false;  //反向
+                                }
+                            }
+                         
+                        }
+
+
+
+
+                        index = minFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
+                        //if (index != -1)
+                        //    g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+
+
                     }
                     else
                     {
@@ -561,7 +658,7 @@ namespace StockTest
                     label4.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Open.ToString();
                     label5.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Close.ToString();
                     label6.Text = ((int)Math.Floor(basePoinf.X / kwidth)).ToString();
-
+                    label8.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Date.ToString();
                 }
 
 
