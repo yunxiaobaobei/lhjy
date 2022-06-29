@@ -56,6 +56,11 @@ namespace StockTest
         List<double> aveVolumn = new List<double>();
 
       static  int kwidth = 4; //K线宽度
+        static int disMargion = 20;  //绘制区域的上下间距
+        static int volumnHeight = 200; //量能图的高度                    
+        static int kPandding = 1; //K点间隔
+
+        int startCalcIndex = 0; //绘制参考起点
 
         private void UserControl1_Load(object sender, EventArgs e)
         {
@@ -76,6 +81,10 @@ namespace StockTest
             Console.WriteLine("当前指标:" + targetType);
 
             this.MouseWheel += My_MouseWheel;
+
+            panel1.Location = new Point(100, 100);
+
+            this.Focus();
         }
 
         private void My_MouseWheel(object sender, MouseEventArgs e)
@@ -118,10 +127,7 @@ namespace StockTest
 
                 g.Clear(Color.White);
 
-                int disMargion = 20;  //绘制区域的上下间距
-                int volumnHeight = 200; //量能图的高度
-                                        // int kwidth = 5; //K线宽度
-                int kPandding = 1; //K点间隔
+           
 
                 //绘制边框
                 g.DrawRectangle(Pens.Black, new Rectangle(0, 0, this.Width - 1, this.Height - 1));
@@ -133,7 +139,9 @@ namespace StockTest
 
                 List<Quote> tempList = new List<Quote>();
                 Quote[] tempArray = new Quote[maxCount];
-                Array.Copy(quoteList.ToArray(), 0, tempArray, 0, maxCount);
+
+
+                Array.Copy(quoteList.ToArray(), startCalcIndex, tempArray, 0, maxCount);
                 tempList.AddRange(tempArray);
 
                 for (int i = 0; i < maxCount; i++)
@@ -535,7 +543,8 @@ namespace StockTest
                             {
                                 if (tempList[i].Volume < tempList[i - 1].Volume)
                                 {
-                                    g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                    if(check_out.Checked)
+                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
                                     analysisCount = 0;
                                     moveDirection = false;
                                 }
@@ -543,7 +552,8 @@ namespace StockTest
                                 {
                                     if (tempList[i].Open > tempList[i].Close)
                                     {
-                                        g.FillEllipse(new SolidBrush(Color.Blue), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                        if(check_out.Checked)
+                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
                                         analysisCount = 0;
                                         moveDirection = false;
                                     }
@@ -555,7 +565,8 @@ namespace StockTest
                                 if (tempList[i].Volume < tempList[i - 1].Volume && tempList[i].Low > tempList[i - 1].Low)
                                 {
                                     analysisCount = 0;
-                                    g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                   if(check_in.Checked)
+                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_abelIn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
 
                                 }
                             }
@@ -588,7 +599,8 @@ namespace StockTest
                         int index = maxFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
                         if (index != -1)
                         {
-                            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+                            if(check_higeVolumn.Checked)
+                                g.FillEllipse(new SolidBrush(panel1.Controls["pic_higeVolumn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
 
                             if (analysisCount == 0)
                             {
@@ -629,14 +641,14 @@ namespace StockTest
                 #endregion
 
 
-                Console.WriteLine(dealInfo.RateOfDeal.Sum());
+                //Console.WriteLine(dealInfo.RateOfDeal.Sum());
 
 
 
-                List<PointF> aveVolumnPoints = new List<PointF>();
-                aveVolumnPoints = CalcAveVolumnPoints(maxCount, kwidth, this.Height - volumnHeight, (double)maxVolum, volumnPerPix, 5);
-                if (aveVolumnPoints.Count > 0)
-                    g.DrawLines(Pens.Blue, aveVolumnPoints.ToArray());
+                //List<PointF> aveVolumnPoints = new List<PointF>();
+                //aveVolumnPoints = CalcAveVolumnPoints(maxCount, kwidth, this.Height - volumnHeight, (double)maxVolum, volumnPerPix, 5);
+                //if (aveVolumnPoints.Count > 0)
+                //    g.DrawLines(Pens.Blue, aveVolumnPoints.ToArray());
 
                 List<PointF> adxPoints = new List<PointF>();
                 adxPoints = CalcTargetPoints((this.Height - volumnHeight - disMargion * 2) * 1F, kwidth, maxCount, targetType);
@@ -687,7 +699,7 @@ namespace StockTest
             {
                 if (aveRange == 1)
                 {
-                    totalVolumn += (double)quoteList[i].Volume;
+                    totalVolumn += (double)quoteList[i + startCalcIndex].Volume;
                     aveVolumn.Add(totalVolumn / (i + 1));
 
                     points.Add(new PointF(i * kwdith, drawHeght + (float)(maxVolumn - aveVolumn[i]) * volumnPerPix));
@@ -697,14 +709,14 @@ namespace StockTest
                     if (i < aveRange)
                     {
                         aveVolumn.Add(0);  //不具备参考价值
-                        totalVolumn += (double)quoteList[i].Volume;
+                        totalVolumn += (double)quoteList[i + startCalcIndex].Volume;
                         points.Add(new PointF(i * kwdith, this.Height));
 
                     }
                     else
                     {
-                        totalVolumn += (double)quoteList[i].Volume;
-                        totalVolumn -= (double)quoteList[i - aveRange].Volume;
+                        totalVolumn += (double)quoteList[i + startCalcIndex].Volume;
+                        totalVolumn -= (double)quoteList[i - aveRange + startCalcIndex].Volume;
                         aveVolumn.Add( totalVolumn / aveRange);
 
                         //计算坐标点
@@ -881,6 +893,161 @@ namespace StockTest
         private void label3_Click(object sender, EventArgs e)
         {
 
+        }
+        //移动信息标签页
+        bool moveSetting = false;
+        Point oldInofLoc = new Point();
+        Point startMovePoint = new Point();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panel1_MouseDown(object sender, MouseEventArgs e)
+        {
+            moveSetting = true;
+            oldInofLoc = panel1.Location;
+            startMovePoint =  new Point(e.X  , e.Y);
+            Console.WriteLine(oldInofLoc + " ::" + e.X + ":" + e.Y);
+        }
+
+        private void panel1_MouseUp(object sender, MouseEventArgs e)
+        {
+            
+            if (moveSetting == true)
+            {
+                panel1.Location = new Point(oldInofLoc.X + e.X - startMovePoint.X, oldInofLoc.Y + e.Y - startMovePoint.Y);
+                moveSetting = false;
+            }
+           // panel1.Location = oldInofLoc;
+        }
+
+        private void panel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            //if (moveSetting == true)
+            //{
+            //    Point temp = PointToScreen( new Point(e.X, e.Y));
+            //    panel1.Location = new Point(oldInofLoc.X + temp.X  - startMovePoint.X, oldInofLoc.Y + temp.Y - startMovePoint.Y);
+            //    //Console.WriteLine(e.X + ":" + e.Y);
+            //    Console.WriteLine("x偏移：" + (temp.X - startMovePoint.X));
+            //    Console.WriteLine("原位置：" + oldInofLoc);
+            //}
+        }
+
+        private void pic_buy_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if(colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_buy.BackColor = colorDialog1.Color;
+        }
+
+        private void pic_sell_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_sell.BackColor = colorDialog1.Color;
+        }
+
+        private void pic_abelIn_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_abelIn.BackColor = colorDialog1.Color;
+        }
+
+        private void pic_ableOut_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_ableOut.BackColor = colorDialog1.Color;
+        }
+
+        private void pic_higeVolumn_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_higeVolumn.BackColor = colorDialog1.Color;
+        }
+
+        private void pic_lowVolumn_Click(object sender, EventArgs e)
+        {
+            colorDialog1 = new ColorDialog();
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
+                pic_lowVolumn.BackColor = colorDialog1.Color;
+        }
+
+        //处理键盘事件
+        private void UserControl1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            //if (e.KeyChar == 'k')
+            //{
+            //    MessageBox.Show(e.KeyChar.ToString()  Keys.Down);
+            //}
+        }
+
+        private void UserControl1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Right)
+            {
+                if (startCalcIndex < quoteList.Count - 100)
+                    startCalcIndex++;
+            }
+            else if (e.KeyCode == Keys.Left)
+            {
+                if (startCalcIndex > 0)
+                    startCalcIndex--;
+            }
+            else if (e.KeyCode == Keys.Up)
+            {
+                if (startCalcIndex < quoteList.Count - 100)
+                    startCalcIndex += 4;
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                if (startCalcIndex >= 4)
+                    startCalcIndex -= 4;
+            }
+
+            this.Invalidate();
+        }
+
+        private void UserControl1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+                e.IsInputKey = true;
+        }
+
+        private void check_buy_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+                e.IsInputKey = true;
+            //if (e.KeyCode == Keys.Right)
+            //{
+            //    if (startCalcIndex < quoteList.Count - 100)
+            //        startCalcIndex++;
+            //}
+            //else if (e.KeyCode == Keys.Left)
+            //{
+            //    if (startCalcIndex > 0)
+            //        startCalcIndex--;
+            //}
+            //else if (e.KeyCode == Keys.Up)
+            //{
+            //    if (startCalcIndex < quoteList.Count - 100)
+            //        startCalcIndex += 4;
+            //}
+            //else if (e.KeyCode == Keys.Down)
+            //{
+            //    if (startCalcIndex >= 4)
+            //        startCalcIndex -= 4;
+            //}
+
+            //this.Invalidate();
+        }
+
+        private void check_buy_Click(object sender, EventArgs e)
+        {
+            this.Focus();
         }
     }
 }

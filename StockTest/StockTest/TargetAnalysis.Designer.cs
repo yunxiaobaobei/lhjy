@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.combox_target = new System.Windows.Forms.ComboBox();
             this.btn_getHistory = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel_Kline = new System.Windows.Forms.Panel();
             this.panel_volumn = new System.Windows.Forms.Panel();
-            this.combox_target = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
@@ -50,6 +50,23 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(1121, 100);
             this.panel1.TabIndex = 0;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(903, 36);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(53, 12);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "指标切换";
+            // 
+            // combox_target
+            // 
+            this.combox_target.FormattingEnabled = true;
+            this.combox_target.Location = new System.Drawing.Point(962, 33);
+            this.combox_target.Name = "combox_target";
+            this.combox_target.Size = new System.Drawing.Size(121, 20);
+            this.combox_target.TabIndex = 1;
             // 
             // btn_getHistory
             // 
@@ -96,23 +113,6 @@
             this.panel_volumn.Size = new System.Drawing.Size(921, 70);
             this.panel_volumn.TabIndex = 0;
             this.panel_volumn.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_volumn_Paint);
-            // 
-            // combox_target
-            // 
-            this.combox_target.FormattingEnabled = true;
-            this.combox_target.Location = new System.Drawing.Point(962, 33);
-            this.combox_target.Name = "combox_target";
-            this.combox_target.Size = new System.Drawing.Size(121, 20);
-            this.combox_target.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(903, 36);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 12);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "指标切换";
             // 
             // TargetAnalysis
             // 
