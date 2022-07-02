@@ -236,5 +236,18 @@ namespace StockTest
 
             }
         }
+
+        private void panel4_Paint(object sender, PaintEventArgs e)
+        {
+            //绘制边框
+            Graphics g = e.Graphics;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+
+            Rectangle broder = new Rectangle(1, 0, panel4.Width - 2, panel4.Height - 1);
+
+            g.DrawRectangle(Pens.Black, broder);
+
+        }
     }
 }

@@ -72,10 +72,6 @@ namespace StockTest
 
         private void UserControl1_Load(object sender, EventArgs e)
         {
-            //backImg = new Bitmap(this.Width, this.Height);
-            //backImgraphics = Graphics.FromImage(backImg);
-            //backImgraphics.Clear(Color.GreenYellow);
-
             //获取指标曲线
             adxResults = quoteList.GetAdx(14).ToList();
             adlResults = quoteList.GetAdl().ToList();
@@ -85,7 +81,6 @@ namespace StockTest
                 targetMenu.Items.Add(s);
             }
 
-
             Console.WriteLine("当前指标:" + targetType);
 
             this.MouseWheel += My_MouseWheel;
@@ -94,8 +89,6 @@ namespace StockTest
 
         private void My_MouseWheel(object sender, MouseEventArgs e)
         {
-            Console.WriteLine(e.Delta);
-
             if (e.Delta > 0)
             {
                 if (kwidth >= 14)
@@ -131,8 +124,6 @@ namespace StockTest
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
                 g.Clear(Color.White);
-
-
 
                 //绘制边框
                 g.DrawRectangle(Pens.Black, new Rectangle(0, 0, this.Width - 1, this.Height - 1));
@@ -198,8 +189,6 @@ namespace StockTest
                 //    g.DrawLine(Pens.Red, new PointF(0, i * (float)priceRange), new PointF(40, i * (float) priceRange)); 
 
                 //}
-
-
 
 
                 decimal maxVolum = 0;
@@ -604,6 +593,16 @@ namespace StockTest
                             }
 
                         }
+                        else
+                        {
+                            //量能萎缩到不足以进入分析时，且没有买入的
+                            analysisCount = 0;
+
+                            //if (analysisCount > 0)
+                            //{
+                            //    analysisCount = 0; 
+                            //}
+                        }
 
 
 
@@ -643,7 +642,6 @@ namespace StockTest
                     g.DrawLines(Pens.Blue, adxPoints.ToArray());
 
 
-
                 //绘制观察线
                 if (isMoveDraw)
                 {
@@ -651,19 +649,9 @@ namespace StockTest
                     g.DrawLine(Pens.Black, new PointF(basePoinf.X, this.Height), new PointF(basePoinf.X, 0));
                     g.DrawLine(Pens.Black, new PointF(0, basePoinf.Y), new PointF(this.Width, basePoinf.Y));
 
-
-                    //显示价格
-                    //label4.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Open.ToString();
-                    //label5.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Close.ToString();
-                    //label6.Text = ((int)Math.Floor(basePoinf.X / kwidth)).ToString();
-                    //label8.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Date.ToString();
-
-
+                    //显示当前K线信息
                     ShowKinfoEvent?.Invoke(tempList[(int)Math.Floor(basePoinf.X / kwidth)], (int)Math.Floor(basePoinf.X / kwidth));
-
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -800,7 +788,6 @@ namespace StockTest
             {
                 basePoinf = new PointF(e.X, e.Y);
                 this.Invalidate();
-                // Console.WriteLine("sss");
             }
         }
 
@@ -812,11 +799,8 @@ namespace StockTest
             }
             else if (e.Button == MouseButtons.Right) //右键菜单
             {
-
                 Point temp = new Point(e.X, e.Y);
-
                 targetMenu.Show(PointToScreen(temp));
-
             }
         }
 
@@ -870,7 +854,6 @@ namespace StockTest
 
             Console.WriteLine("当前指标:" + targetType);
 
-
             this.Invalidate(true);
 
         }
@@ -892,10 +875,6 @@ namespace StockTest
         //处理键盘事件
         private void UserControl1_KeyPress(object sender, KeyPressEventArgs e)
         {
-            //if (e.KeyChar == 'k')
-            //{
-            //    MessageBox.Show(e.KeyChar.ToString()  Keys.Down);
-            //}
         }
 
         private void UserControl1_KeyDown(object sender, KeyEventArgs e)
