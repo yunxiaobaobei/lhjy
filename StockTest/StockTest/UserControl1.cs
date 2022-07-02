@@ -13,23 +13,27 @@ namespace StockTest
 {
     public partial class UserControl1 : UserControl
     {
-        public UserControl1(List<Quote> quoteList)
+        //颜色配置方案
+        private ColorConfig colorconfig = null;
+
+        public UserControl1(List<Quote> quoteList, ColorConfig con)
         {
             InitializeComponent();
 
             this.SetStyle(
-               ControlStyles.UserPaint |
-                     ControlStyles.AllPaintingInWmPaint, true);
+               ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
             SetStyle(
-          ControlStyles.OptimizedDoubleBuffer,
-
-           true);
+          ControlStyles.OptimizedDoubleBuffer,  true);
 
             this.UpdateStyles();
 
 
             this.quoteList = quoteList;
+            colorconfig = con;
+
+
+            TargetAnalysis.ChangeColorConfigEvent += ChangeColorConfig;
         }
 
 
@@ -51,6 +55,10 @@ namespace StockTest
         List<AdlResult> adlResults = null;
 
         TargetEnum targetType = TargetEnum.None;
+
+        //显示当前K线详细信息
+        public static event Action<Quote, int> ShowKinfoEvent;
+
 
         //均量线
         List<double> aveVolumn = new List<double>();
@@ -81,9 +89,6 @@ namespace StockTest
             Console.WriteLine("当前指标:" + targetType);
 
             this.MouseWheel += My_MouseWheel;
-
-            panel1.Location = new Point(100, 100);
-
             this.Focus();
         }
 
@@ -427,117 +432,26 @@ namespace StockTest
 
                     #region  策略2
 
+                    /*
+                     交易逻辑:
+                        核心： 量价关系   股价的快速波动与成交量有密切关系，所以只在爆量的时候参与买进和卖出
+
+                        1.找到量能快速增加的位置
+                        2.判断当前是上涨趋势还是下跌趋势
+                        3.下跌趋势买进 ，上涨趋势卖出
+                        4.做止损和止盈
+                     
+
+                        1进场点选择：
+                            1.首先是量能放大后缩量
+                            2.股价不新低
+                            3.上次放量位置与本次放量位置是否形成下跌趋势，且下跌幅度大于3%（可调）
+                            4.上次量能与本次量能的差异 （待验证）
+                     */
 
 
                     if (i > 47)  //将前一日的K线纳入分析
                     {
-
-
-
-
-                        //做止盈止损
-                        //if (isBuy == true)
-                        //{
-                        //    double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
-                        //    if (rate < -0.1)
-                        //    {
-                        //        isBuy = false;
-                        //        dealInfo.RateOfDeal.Add(rate);
-
-                        //        //绘制当前点位
-                        //        g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-                        //    }
-
-                        //    else 
-                        //    {
-
-                        //        //寻找出场点
-                        //        if (tempList[i].Close > tempList[i - 1].Close)
-                        //        {
-                        //            if (analysisCount == 0)
-                        //            {
-                        //                baseQuote = tempList[i];
-                        //            }
-
-                        //            analysisCount++;
-                        //        }
-                        //        else
-                        //        {
-                        //            //配合量能条件
-                        //            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-
-                        //            isBuy = false;
-
-                        //            analysisCount = 0;
-                        //        }
-
-
-                        //        //止盈
-                        //        if (rate > 0.5)
-                        //        {
-
-                        //            isBuy = false;
-
-                        //            g.FillEllipse(new SolidBrush(Color.Red), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-
-                        //        }
-                        //    }
-
-
-
-                        //}
-
-                        //else  ////确定入场点
-                        //{
-                        //    if (tempList[i].Close < tempList[i - 1].Close)
-                        //    {
-                        //        if (analysisCount == 0)
-                        //        {
-                        //            baseQuote = tempList[i - 1];
-                        //        }
-
-                        //        analysisCount++;
-                        //    }
-                        //    else
-                        //    {
-                        //        if (analysisCount > 0)
-                        //        {
-                        //            //加入量能条件, 小于5日均量
-                        //            //decimal fiveAveVolumn = 0;
-                        //            //for (int j = i - 5; j < i; j++)
-                        //            //{
-                        //            //    fiveAveVolumn += tempList[j].Volume;
-                        //            //}
-
-                        //            //if (tempList[i].Volume < fiveAveVolumn / 5)
-                        //            //{
-
-                        //            //    if (isBuy == false)
-                        //            //    {
-                        //            //        g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-                        //            //        isBuy = true;
-                        //            //        dealInfo.Buy = tempList[i];
-                        //            //    }
-                        //            //}
-
-                        //            //计算量能是否在低位
-
-
-
-
-                        //            analysisCount = 0;
-                        //        }
-                        //        else
-                        //        {
-
-                        //        }
-                        //    }
-                        //}
-
-
 
                         //判断量能是否在高位
                         List<Quote> oneDayVolumnList = new List<Quote>();
@@ -578,9 +492,9 @@ namespace StockTest
                             {
                                 if (tempList[i].Volume < tempList[i - 1].Volume)
                                 {
-                                    if (check_out.Checked)
+                                    if (colorconfig.AbleExitPoint)
                                     {
-                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                        g.FillEllipse(new SolidBrush(colorconfig.ExitPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
                                     }
 
                                     analysisCount = 0;
@@ -598,8 +512,8 @@ namespace StockTest
                                 {
                                     if (tempList[i].Open > tempList[i].Close)
                                     {
-                                        if (check_out.Checked)
-                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                        if (colorconfig.AbleExitPoint)
+                                            g.FillEllipse(new SolidBrush(colorconfig.ExitPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
                                         analysisCount = 0;
                                         moveDirection = false;
 
@@ -620,7 +534,7 @@ namespace StockTest
                                     tempList[i].Open < tempList[i].Close) //量缩 股价不新低 并且收红盘
                                 {
                                     analysisCount = 0;
-                                    if (check_in.Checked) //是否绘制当前节点
+                                    if (colorconfig.AbleEnterPoint) //是否绘制当前节点
                                     {
                                         //判断价格是否在相对低位（ 有四种判断依据 开盘价--收盘价--最高价--最低价）
 
@@ -628,7 +542,7 @@ namespace StockTest
                                       //  if (tempList[i].Low - minPriceOf48 < (maxPriceOf48 - minPriceOf48) / 3 * 2)  
                                         {
 
-                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_abelIn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                            g.FillEllipse(new SolidBrush(colorconfig.EnterPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
 
                                             if (isBuy == false)
                                             {
@@ -671,8 +585,8 @@ namespace StockTest
                         int index = maxFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
                         if (index != -1)
                         {
-                            if (check_higeVolumn.Checked)
-                                g.FillEllipse(new SolidBrush(panel1.Controls["pic_higeVolumn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+                            if (colorconfig.AbleHeigVolumn)
+                                g.FillEllipse(new SolidBrush(colorconfig.HeigVolumnColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
 
                             if (analysisCount == 0)
                             {
@@ -739,10 +653,14 @@ namespace StockTest
 
 
                     //显示价格
-                    label4.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Open.ToString();
-                    label5.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Close.ToString();
-                    label6.Text = ((int)Math.Floor(basePoinf.X / kwidth)).ToString();
-                    label8.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Date.ToString();
+                    //label4.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Open.ToString();
+                    //label5.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Close.ToString();
+                    //label6.Text = ((int)Math.Floor(basePoinf.X / kwidth)).ToString();
+                    //label8.Text = tempList[(int)Math.Floor(basePoinf.X / kwidth)].Date.ToString();
+
+
+                    ShowKinfoEvent?.Invoke(tempList[(int)Math.Floor(basePoinf.X / kwidth)], (int)Math.Floor(basePoinf.X / kwidth));
+
                 }
 
 
@@ -970,83 +888,6 @@ namespace StockTest
         bool moveSetting = false;
         Point oldInofLoc = new Point();
         Point startMovePoint = new Point();
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void panel1_MouseDown(object sender, MouseEventArgs e)
-        {
-            moveSetting = true;
-            oldInofLoc = panel1.Location;
-            startMovePoint = new Point(e.X, e.Y);
-            Console.WriteLine(oldInofLoc + " ::" + e.X + ":" + e.Y);
-        }
-
-        private void panel1_MouseUp(object sender, MouseEventArgs e)
-        {
-
-            if (moveSetting == true)
-            {
-                panel1.Location = new Point(oldInofLoc.X + e.X - startMovePoint.X, oldInofLoc.Y + e.Y - startMovePoint.Y);
-                moveSetting = false;
-            }
-            // panel1.Location = oldInofLoc;
-        }
-
-        private void panel1_MouseMove(object sender, MouseEventArgs e)
-        {
-            //if (moveSetting == true)
-            //{
-            //    Point temp = PointToScreen( new Point(e.X, e.Y));
-            //    panel1.Location = new Point(oldInofLoc.X + temp.X  - startMovePoint.X, oldInofLoc.Y + temp.Y - startMovePoint.Y);
-            //    //Console.WriteLine(e.X + ":" + e.Y);
-            //    Console.WriteLine("x偏移：" + (temp.X - startMovePoint.X));
-            //    Console.WriteLine("原位置：" + oldInofLoc);
-            //}
-        }
-
-        private void pic_buy_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_buy.BackColor = colorDialog1.Color;
-        }
-
-        private void pic_sell_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_sell.BackColor = colorDialog1.Color;
-        }
-
-        private void pic_abelIn_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_abelIn.BackColor = colorDialog1.Color;
-        }
-
-        private void pic_ableOut_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_ableOut.BackColor = colorDialog1.Color;
-        }
-
-        private void pic_higeVolumn_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_higeVolumn.BackColor = colorDialog1.Color;
-        }
-
-        private void pic_lowVolumn_Click(object sender, EventArgs e)
-        {
-            colorDialog1 = new ColorDialog();
-            if (colorDialog1.ShowDialog() == DialogResult.OK)
-                pic_lowVolumn.BackColor = colorDialog1.Color;
-        }
 
         //处理键盘事件
         private void UserControl1_KeyPress(object sender, KeyPressEventArgs e)
@@ -1089,37 +930,11 @@ namespace StockTest
                 e.IsInputKey = true;
         }
 
-        private void check_buy_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Up || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
-                e.IsInputKey = true;
-            //if (e.KeyCode == Keys.Right)
-            //{
-            //    if (startCalcIndex < quoteList.Count - 100)
-            //        startCalcIndex++;
-            //}
-            //else if (e.KeyCode == Keys.Left)
-            //{
-            //    if (startCalcIndex > 0)
-            //        startCalcIndex--;
-            //}
-            //else if (e.KeyCode == Keys.Up)
-            //{
-            //    if (startCalcIndex < quoteList.Count - 100)
-            //        startCalcIndex += 4;
-            //}
-            //else if (e.KeyCode == Keys.Down)
-            //{
-            //    if (startCalcIndex >= 4)
-            //        startCalcIndex -= 4;
-            //}
 
-            //this.Invalidate();
-        }
-
-        private void check_buy_Click(object sender, EventArgs e)
+        private void ChangeColorConfig(ColorConfig config)
         {
-            this.Focus();
+            colorconfig = config;
+            this.Invalidate();
         }
     }
 }

@@ -67,7 +67,7 @@ namespace StockTest
             klineG = Graphics.FromImage(klinePic);
             klineG.Clear(Color.White);
 
-            LoadBaseInfo();
+          //  LoadBaseInfo();
 
 
 
