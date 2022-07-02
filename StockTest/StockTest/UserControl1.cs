@@ -23,7 +23,7 @@ namespace StockTest
 
             SetStyle(
           ControlStyles.OptimizedDoubleBuffer,
-                                              
+
            true);
 
             this.UpdateStyles();
@@ -55,7 +55,7 @@ namespace StockTest
         //均量线
         List<double> aveVolumn = new List<double>();
 
-      static  int kwidth = 4; //K线宽度
+        static int kwidth = 4; //K线宽度
         static int disMargion = 20;  //绘制区域的上下间距
         static int volumnHeight = 200; //量能图的高度                    
         static int kPandding = 1; //K点间隔
@@ -71,8 +71,8 @@ namespace StockTest
             //获取指标曲线
             adxResults = quoteList.GetAdx(14).ToList();
             adlResults = quoteList.GetAdl().ToList();
-            
-           foreach(var s in Enum.GetNames(typeof(TargetEnum)))
+
+            foreach (var s in Enum.GetNames(typeof(TargetEnum)))
             {
                 targetMenu.Items.Add(s);
             }
@@ -114,7 +114,7 @@ namespace StockTest
         {
         }
 
-      
+
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -127,7 +127,7 @@ namespace StockTest
 
                 g.Clear(Color.White);
 
-           
+
 
                 //绘制边框
                 g.DrawRectangle(Pens.Black, new Rectangle(0, 0, this.Width - 1, this.Height - 1));
@@ -428,7 +428,7 @@ namespace StockTest
                     #region  策略2
 
 
-                   
+
                     if (i > 47)  //将前一日的K线纳入分析
                     {
 
@@ -537,40 +537,6 @@ namespace StockTest
                         //    }
                         //}
 
-                        if (analysisCount > 0)
-                        {
-                            if (moveDirection == true)
-                            {
-                                if (tempList[i].Volume < tempList[i - 1].Volume)
-                                {
-                                    if(check_out.Checked)
-                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
-                                    analysisCount = 0;
-                                    moveDirection = false;
-                                }
-                                else
-                                {
-                                    if (tempList[i].Open > tempList[i].Close)
-                                    {
-                                        if(check_out.Checked)
-                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
-                                        analysisCount = 0;
-                                        moveDirection = false;
-                                    }
-                                }
-
-                            }
-                            else
-                            {
-                                if (tempList[i].Volume < tempList[i - 1].Volume && tempList[i].Low > tempList[i - 1].Low)
-                                {
-                                    analysisCount = 0;
-                                   if(check_in.Checked)
-                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_abelIn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
-
-                                }
-                            }
-                        }
 
 
                         //判断量能是否在高位
@@ -596,10 +562,116 @@ namespace StockTest
                             maxFiveVolumn.Add(oneDayVolumnList[48 - j - 1]);
                         }
 
+                        //计算出当前区间的最大值和最小值
+                        decimal maxPriceOf48 = 0;
+                        decimal minPriceOf48 = 0;
+
+                        oneDayVolumnList.ForEach(x => { if (x.High > maxPriceOf48) maxPriceOf48 = x.High; });
+                        minPriceOf48 = maxPriceOf48;
+                        oneDayVolumnList.ForEach(x => { if (x.Low < minPriceOf48) minPriceOf48 = x.Low; });
+
+
+                        //做进出场点分析
+                        if (analysisCount > 0)
+                        {
+                            if (moveDirection == true)
+                            {
+                                if (tempList[i].Volume < tempList[i - 1].Volume)
+                                {
+                                    if (check_out.Checked)
+                                    {
+                                        g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                    }
+
+                                    analysisCount = 0;
+                                    moveDirection = false;
+
+                                    if (isBuy == true)
+                                    {
+                                        double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+                                        dealInfo.RateOfDeal.Add(rate);
+                                        isBuy = false;
+                                    }
+
+                                }
+                                else
+                                {
+                                    if (tempList[i].Open > tempList[i].Close)
+                                    {
+                                        if (check_out.Checked)
+                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_ableOut"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                        analysisCount = 0;
+                                        moveDirection = false;
+
+
+                                        if (isBuy == true)
+                                        {
+                                            double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+                                            dealInfo.RateOfDeal.Add(rate);
+                                            isBuy = false;
+                                        }
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                if (tempList[i].Volume < tempList[i - 1].Volume && tempList[i].Low > tempList[i - 1].Low && 
+                                    tempList[i].Open < tempList[i].Close) //量缩 股价不新低 并且收红盘
+                                {
+                                    analysisCount = 0;
+                                    if (check_in.Checked) //是否绘制当前节点
+                                    {
+                                        //判断价格是否在相对低位（ 有四种判断依据 开盘价--收盘价--最高价--最低价）
+
+                                        //这里以最低价测试
+                                      //  if (tempList[i].Low - minPriceOf48 < (maxPriceOf48 - minPriceOf48) / 3 * 2)  
+                                        {
+
+                                            g.FillEllipse(new SolidBrush(panel1.Controls["pic_abelIn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+
+                                            if (isBuy == false)
+                                            {
+                                                isBuy = true;
+                                                dealInfo.Buy = tempList[i];
+                                            }
+                                        }
+
+                                    }
+                                }
+                                //else
+                                //{
+                                //    analysisCount = 0;
+                                //}
+                            }
+                        }
+
+
+                        //地量中股价走低，做止损
+                        if (isBuy == true)
+                        {
+                            double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
+
+                            if (rate < -0.2)  //下跌两个点，止损
+                            {
+                                dealInfo.RateOfDeal.Add(rate);
+                                analysisCount = 0;
+                                isBuy = false;
+                            }
+
+                            if (rate > 1) 
+                            {
+                                dealInfo.RateOfDeal.Add(rate);
+                                analysisCount = 0;
+                                isBuy = false;
+                            }
+
+                        }
+
                         int index = maxFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
                         if (index != -1)
                         {
-                            if(check_higeVolumn.Checked)
+                            if (check_higeVolumn.Checked)
                                 g.FillEllipse(new SolidBrush(panel1.Controls["pic_higeVolumn"].BackColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
 
                             if (analysisCount == 0)
@@ -616,7 +688,7 @@ namespace StockTest
                                     moveDirection = false;  //反向
                                 }
                             }
-                         
+
                         }
 
 
@@ -641,7 +713,7 @@ namespace StockTest
                 #endregion
 
 
-                //Console.WriteLine(dealInfo.RateOfDeal.Sum());
+                Console.WriteLine(dealInfo.RateOfDeal.Sum());
 
 
 
@@ -687,7 +759,7 @@ namespace StockTest
         /// </summary>
         /// <param name="maxCount">当前k线点数</param>
         /// <param name="aveRange">均量级别 默认1日  5则为5日均量</param>
-        private List<PointF> CalcAveVolumnPoints(int maxCount, int kwdith, float drawHeght ,double maxVolumn, float volumnPerPix, int aveRange = 1)
+        private List<PointF> CalcAveVolumnPoints(int maxCount, int kwdith, float drawHeght, double maxVolumn, float volumnPerPix, int aveRange = 1)
         {
 
             List<PointF> points = new List<PointF>();
@@ -717,7 +789,7 @@ namespace StockTest
                     {
                         totalVolumn += (double)quoteList[i + startCalcIndex].Volume;
                         totalVolumn -= (double)quoteList[i - aveRange + startCalcIndex].Volume;
-                        aveVolumn.Add( totalVolumn / aveRange);
+                        aveVolumn.Add(totalVolumn / aveRange);
 
                         //计算坐标点
                         points.Add(new PointF(i * kwdith, drawHeght + (float)(maxVolumn - aveVolumn[i]) * volumnPerPix));
@@ -730,7 +802,7 @@ namespace StockTest
         }
 
         //计算指标坐标点
-        private List<PointF> CalcTargetPoints(float drawHeight, float kwidth, int maxcount,  TargetEnum targetType)
+        private List<PointF> CalcTargetPoints(float drawHeight, float kwidth, int maxcount, TargetEnum targetType)
         {
             List<PointF> points = new List<PointF>();
 
@@ -799,9 +871,9 @@ namespace StockTest
             return points;
         }
 
-            private void UserControl1_MouseDown(object sender, MouseEventArgs e)
+        private void UserControl1_MouseDown(object sender, MouseEventArgs e)
         {
-            
+
         }
 
         private void UserControl1_MouseMove(object sender, MouseEventArgs e)
@@ -810,7 +882,7 @@ namespace StockTest
             {
                 basePoinf = new PointF(e.X, e.Y);
                 this.Invalidate();
-               // Console.WriteLine("sss");
+                // Console.WriteLine("sss");
             }
         }
 
@@ -907,19 +979,19 @@ namespace StockTest
         {
             moveSetting = true;
             oldInofLoc = panel1.Location;
-            startMovePoint =  new Point(e.X  , e.Y);
+            startMovePoint = new Point(e.X, e.Y);
             Console.WriteLine(oldInofLoc + " ::" + e.X + ":" + e.Y);
         }
 
         private void panel1_MouseUp(object sender, MouseEventArgs e)
         {
-            
+
             if (moveSetting == true)
             {
                 panel1.Location = new Point(oldInofLoc.X + e.X - startMovePoint.X, oldInofLoc.Y + e.Y - startMovePoint.Y);
                 moveSetting = false;
             }
-           // panel1.Location = oldInofLoc;
+            // panel1.Location = oldInofLoc;
         }
 
         private void panel1_MouseMove(object sender, MouseEventArgs e)
@@ -937,7 +1009,7 @@ namespace StockTest
         private void pic_buy_Click(object sender, EventArgs e)
         {
             colorDialog1 = new ColorDialog();
-            if(colorDialog1.ShowDialog() == DialogResult.OK)
+            if (colorDialog1.ShowDialog() == DialogResult.OK)
                 pic_buy.BackColor = colorDialog1.Color;
         }
 
