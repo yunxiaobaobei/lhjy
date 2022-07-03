@@ -13,8 +13,14 @@ namespace StockTest
 
         public Quote Sell { get; set; }
 
-        public List<double> RateOfDeal { get; set; }
+        public List<double> RateOfDeal { get; set; }  //百分比 %
 
-        public float InitMoney { get; set; }
+        public double InitMoney { get; set; }
+
+        public int DealCount { get; set; } //交易次数
+
+
+        public TimeSpan DealTimeDistance { get; set; } //交易时间跨度
+
     }
 }

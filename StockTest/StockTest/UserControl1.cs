@@ -24,7 +24,7 @@ namespace StockTest
                ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
 
             SetStyle(
-          ControlStyles.OptimizedDoubleBuffer,  true);
+          ControlStyles.OptimizedDoubleBuffer, true);
 
             this.UpdateStyles();
 
@@ -222,11 +222,9 @@ namespace StockTest
 
                 DealInfo dealInfo = new DealInfo();
                 dealInfo.RateOfDeal = new List<double>();
-                dealInfo.InitMoney = 10000;
+                dealInfo.InitMoney = 100000;
+                dealInfo.DealCount = 0;
                 int keyPointWidth = 10;
-
-
-
 
 
                 //单独绘制k线
@@ -268,7 +266,7 @@ namespace StockTest
                         g.FillRectangles(new SolidBrush(Color.Coral), new RectangleF[] { temp });
                     }
 
-                    //基于量
+                    //基于量)
                     #region 策略1
                     //if (i > 0)
                     //{
@@ -439,14 +437,14 @@ namespace StockTest
                      */
 
 
-                    if (i > 47)  //将前一日的K线纳入分析
+                    if (i > 59)  //将前一日的K线纳入分析
                     {
 
                         //判断量能是否在高位
                         List<Quote> oneDayVolumnList = new List<Quote>();
-                        Quote[] oneDayTempVolumn = new Quote[48];
+                        Quote[] oneDayTempVolumn = new Quote[60]; //5个小时，包含开盘和收盘半小时
 
-                        Array.Copy(tempList.ToArray(), i - 47, oneDayTempVolumn, 0, oneDayTempVolumn.Length);
+                        Array.Copy(tempList.ToArray(), i - oneDayTempVolumn.Length, oneDayTempVolumn, 0, oneDayTempVolumn.Length);
 
                         oneDayVolumnList.AddRange(oneDayTempVolumn);
 
@@ -459,13 +457,28 @@ namespace StockTest
                             return x.Volume.CompareTo(y.Volume);
                         });
 
-                        for (int j = 0; j < 6; j++)
+                        for (int j = 0; j < 10; j++)
                         {
                             minFiveVolumn.Add(oneDayVolumnList[j]);
-                            maxFiveVolumn.Add(oneDayVolumnList[48 - j - 1]);
+                            maxFiveVolumn.Add(oneDayVolumnList[oneDayTempVolumn.Length - j - 1]);
                         }
 
-                        //计算出当前区间的最大值和最小值
+                        //绘制一个起始量能点
+                        // int indexMaxvolumnStart = maxFiveVolumn.Min(x => x.Date).Date;
+                        int startIndexVolumn = tempList.FindIndex(x => x.Date == maxFiveVolumn.Min(y => y.Date));
+                       // if (startIndexVolumn != -1)
+                           // g.FillEllipse(new SolidBrush(Color.YellowGreen), new RectangleF(startIndexVolumn * kwidth, disMargion + (float)(maxPrice - tempList[startIndexVolumn].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+
+
+                        //按时间再次排序
+                        //maxFiveVolumn.Sort(delegate (Quote x, Quote y)
+                        //{
+                        //    return x.Date.CompareTo(y.Date);
+                        //});
+
+
+                        //计算出当前区间的最大值和最小值（一天）
                         decimal maxPriceOf48 = 0;
                         decimal minPriceOf48 = 0;
 
@@ -474,11 +487,184 @@ namespace StockTest
                         oneDayVolumnList.ForEach(x => { if (x.Low < minPriceOf48) minPriceOf48 = x.Low; });
 
 
-                        //做进出场点分析
-                        if (analysisCount > 0)
+                        //止盈止损策略
+                        //地量中股价走低，做止损
+                        if (isBuy == true)
                         {
+                            double rate = (double)((tempList[i].Close - dealInfo.Buy.Close) / dealInfo.Buy.Close)  * 100;
+
+                            if (rate < -3)  //下跌三个点，止损
+                            {
+
+                                if (DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
+                                {
+                                    dealInfo.RateOfDeal.Add(rate);
+                                    dealInfo.InitMoney = dealInfo.InitMoney * (1 + rate / 100);
+                                    isBuy = false;
+                                    dealInfo.DealCount++;
+
+                                    if (colorconfig.AbleSell)
+                                    {
+                                        g.FillEllipse(new SolidBrush(colorconfig.SellOutColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                    }
+                                }
+
+                            }
+
+                            if (rate > 5) //大于5个点， 止盈
+                            {
+
+                                if (DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
+                                {
+                                    dealInfo.RateOfDeal.Add(rate);
+                                    dealInfo.InitMoney = dealInfo.InitMoney * (1 + rate / 100);
+                                    isBuy = false;
+                                    dealInfo.DealCount++;
+                                    if (colorconfig.AbleSell)
+                                    {
+                                        g.FillEllipse(new SolidBrush(colorconfig.SellOutColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+                                    }
+                                }
+                            }
+
+                        }
+
+                        //判断当前量能是否开始放量
+                        if (tempList[i].Volume >= maxFiveVolumn[maxFiveVolumn.Count - 1].Volume)
+                        {
+                            if (colorconfig.AbleHeigVolumn)
+                                g.FillEllipse(new SolidBrush(colorconfig.HeigVolumnColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                            analysisCount++; //标记这里可以开始策略分析
+
+                            //趋势判断（上涨或下跌），找到爆量点的最高和最低位置，判断离当前点位最近的一个，如果近点小于30分钟，
+                            //则用另一个判断（另一个小于30分钟的概率较低，如果不行，只能去当天的最高和最低，来继续分析趋势）
+                            //下跌趋势
+
+                            //先保证时间间隔大于30分钟
+                            List<Quote> timspan30List = new List<Quote>();
+                            maxFiveVolumn.ForEach(x => {
+                                if (tempList[i].Date - x.Date >= TimeSpan.FromMinutes(30))
+                                    timspan30List.Add(x);
+                            });
+
+                            decimal maxPriceofMaxVolumns = timspan30List.Max(x => x.High);
+                            decimal minPriceOfMaxVolumns = timspan30List.Min(x => x.Low);
+
+                            DateTime maxPrcieTime = timspan30List.Find(x => x.High == maxPriceofMaxVolumns).Date;
+                            DateTime minPriceTime = timspan30List.Find(x => x.Low == minPriceOfMaxVolumns).Date;
+
+
+
+                            //判断较近的那个 ,同时大于20分钟
+                            if (minPriceTime > maxPrcieTime)  //低价距离当前点位较近
+                            {
+                                if (tempList[i].Date - minPriceTime >= TimeSpan.FromMinutes(30))
+                                {
+                                    if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
+                                    {
+                                        moveDirection = true;
+                                    }
+                                    else
+                                    {
+                                        moveDirection = false;
+                                    }
+                                }
+                                else  // 时间间隔不够，以较远的那个做参考
+                                {
+
+                                    if (tempList[i].High > maxPriceofMaxVolumns)
+                                    {
+                                        moveDirection = true;
+                                    }
+                                    else
+                                        moveDirection = false;
+
+                                }
+                            }
+                            else   //高位距离当前点位较近
+                            {
+                                if (tempList[i].Date - maxPrcieTime >= TimeSpan.FromMinutes(30)) //时间间隔合理
+                                {
+                                    if (tempList[i].High > maxPriceofMaxVolumns)
+                                        moveDirection = true;
+                                    else
+                                        moveDirection = false;
+                                }
+                                else //时间间隔不够，以较远的为参考
+                                {
+
+                                    if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
+                                    {
+                                        moveDirection = true;
+                                    }
+                                    else
+                                    {
+                                        moveDirection = false;
+                                    }
+                                }
+
+                            }
+                               
+                        }
+                        else
+                        {
+                            
+                            //如果分析不为0 ，根据下跌趋势可以寻找合适的买点(反转点位)
+                            if (analysisCount >= 1)
+                            {
+                                if (moveDirection == false) //下跌趋势
+                                {
+                                    //下跌缩量到地量，股价不新低 如果没有买入，此时为一个买点
+
+                                    //找到当前放量区间的最低价
+
+                                    List<Quote> tempAnalysisList = new List<Quote>();
+
+                                    for (int k = 1; k <= analysisCount; k++)
+                                    {
+                                        tempAnalysisList.Add(tempList[i - k]);
+                                    }
+
+                                    //按照最低价排序
+                                    tempAnalysisList.Sort(delegate(Quote x, Quote y) { return x.Low.CompareTo(y.Low); });
+
+                                    //股价不新低 且收红盘  买点
+                                    if (tempList[i].Low >= tempAnalysisList[0].Low  && tempList[i].Open <= tempList[i].Close)
+                                    {
+                                        if (colorconfig.AbleEnterPoint) //是否绘制当前节点
+                                        {
+                                            g.FillEllipse(new SolidBrush(colorconfig.EnterPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+
+                                            if (isBuy == false)
+                                            {
+                                                isBuy = true;
+                                                dealInfo.Buy = tempList[i];
+                                                if (colorconfig.AbleBuy)
+                                                {
+                                                    g.FillEllipse(new SolidBrush(colorconfig.BuyInColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+
+                            }
+
+                            //量能萎缩到不足以进入分析时 归0分析标记
+                            analysisCount = 0;
+                        }
+
+                        //进出场点位策略分析
+                        if (analysisCount > 1)   //首次放量不做分析，作为分析开始的标记
+                        {
+                            //上涨趋势，找出场点
                             if (moveDirection == true)
                             {
+                                //缩量 可以出场
                                 if (tempList[i].Volume < tempList[i - 1].Volume)
                                 {
                                     if (colorconfig.AbleExitPoint)
@@ -486,133 +672,139 @@ namespace StockTest
                                         g.FillEllipse(new SolidBrush(colorconfig.ExitPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
                                     }
 
-                                    analysisCount = 0;
-                                    moveDirection = false;
+                                    //analysisCount = 0;
+                                    //moveDirection = false;
 
-                                    if (isBuy == true)
+                                    if (isBuy == true) //已经买入，止盈
                                     {
-                                        double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
-                                        dealInfo.RateOfDeal.Add(rate);
-                                        isBuy = false;
+
+                                        if ( DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d"))) //判断时间，交易规则不能当天买卖（A股股票） 
+                                        {
+                                            double rate = (double)((tempList[i].Close - dealInfo.Buy.Close) / dealInfo.Buy.Close) * 100;
+                                            dealInfo.RateOfDeal.Add(rate);
+                                            dealInfo.InitMoney =  dealInfo.InitMoney *(1 + rate / 100);
+                                            isBuy = false;
+                                            dealInfo.DealCount++;
+                                            if (colorconfig.AbleSell)
+                                            {
+                                                g.FillEllipse(new SolidBrush(colorconfig.SellOutColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                            }
+                                        }
                                     }
 
                                 }
-                                else
+                                else //继续放量
                                 {
-                                    if (tempList[i].Open > tempList[i].Close)
+                                    //此区间下跌 （放量下跌）  出场
+                                    if (tempList[i].Open >= tempList[i].Close)
                                     {
                                         if (colorconfig.AbleExitPoint)
                                             g.FillEllipse(new SolidBrush(colorconfig.ExitPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
-                                        analysisCount = 0;
-                                        moveDirection = false;
 
-
-                                        if (isBuy == true)
-                                        {
-                                            double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
-                                            dealInfo.RateOfDeal.Add(rate);
-                                            isBuy = false;
-                                        }
-                                    }
-                                }
-
-                            }
-                            else
-                            {
-                                if (tempList[i].Volume < tempList[i - 1].Volume && tempList[i].Low > tempList[i - 1].Low && 
-                                    tempList[i].Open < tempList[i].Close) //量缩 股价不新低 并且收红盘
-                                {
-                                    analysisCount = 0;
-                                    if (colorconfig.AbleEnterPoint) //是否绘制当前节点
-                                    {
-                                        //判断价格是否在相对低位（ 有四种判断依据 开盘价--收盘价--最高价--最低价）
-
-                                        //这里以最低价测试
-                                      //  if (tempList[i].Low - minPriceOf48 < (maxPriceOf48 - minPriceOf48) / 3 * 2)  
+                                       
+                                        if (isBuy == true)//如果已经买入，卖出止盈
                                         {
 
-                                            g.FillEllipse(new SolidBrush(colorconfig.EnterPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
-
-                                            if (isBuy == false)
+                                            if (DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d"))) //判断时间，交易规则不能当天买卖（A股股票） 
                                             {
-                                                isBuy = true;
-                                                dealInfo.Buy = tempList[i];
+                                                double rate = (double)((tempList[i].Close - dealInfo.Buy.Close) / dealInfo.Buy.Close) * 100;
+                                                dealInfo.RateOfDeal.Add(rate);
+                                                dealInfo.InitMoney = dealInfo.InitMoney * (1 + rate / 100);
+                                                isBuy = false;
+                                                dealInfo.DealCount++;
+                                                if (colorconfig.AbleSell)
+                                                {
+                                                    g.FillEllipse(new SolidBrush(colorconfig.SellOutColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                                }
                                             }
                                         }
 
                                     }
+                                    else  //放量上涨  持有
+                                    {
+
+                                    }
                                 }
-                                //else
-                                //{
-                                //    analysisCount = 0;
-                                //}
+
                             }
-                        }
-
-
-                        //地量中股价走低，做止损
-                        if (isBuy == true)
-                        {
-                            double rate = (double)(tempList[i].Close - dealInfo.Buy.Close) / ((double)dealInfo.Buy.Close * .1);
-
-                            if (rate < -0.2)  //下跌两个点，止损
+                            else//下跌趋势，寻找入场点
                             {
-                                dealInfo.RateOfDeal.Add(rate);
-                                analysisCount = 0;
-                                isBuy = false;
-                            }
-
-                            if (rate > 1) 
-                            {
-                                dealInfo.RateOfDeal.Add(rate);
-                                analysisCount = 0;
-                                isBuy = false;
-                            }
-
-                        }
-
-                        int index = maxFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
-                        if (index != -1)
-                        {
-                            if (colorconfig.AbleHeigVolumn)
-                                g.FillEllipse(new SolidBrush(colorconfig.HeigVolumnColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-                            if (analysisCount == 0)
-                            {
-                                if (tempList[i].Open < tempList[i].Close) //正向
+                                //缩量，可能存在买点
+                                if (tempList[i].Volume < tempList[i - 1].Volume)
                                 {
+                                    //股价不新低
+                                    if (tempList[i].Low > tempList[i - 1].Low)
+                                    {
+                                        //股价收红 买点，风险偏大
+                                        if (tempList[i].Open < tempList[i].Close)
+                                        {
+                                            if (colorconfig.AbleEnterPoint) //是否绘制当前节点
+                                            {
+                                                g.FillEllipse(new SolidBrush(colorconfig.EnterPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
 
-                                    analysisCount++;
-                                    moveDirection = true;
+                                                if (isBuy == false)
+                                                {
+                                                    isBuy = true;
+                                                    dealInfo.Buy = tempList[i];
+                                                    if (colorconfig.AbleBuy)
+                                                    {
+                                                        g.FillEllipse(new SolidBrush(colorconfig.BuyInColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //股价不新低，收下跌K, 继续观察
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //股价新低，其他情况 继续观察
+                                    }
+
                                 }
-                                else
+                                else //继续放量，
                                 {
-                                    analysisCount++;
-                                    moveDirection = false;  //反向
+                                    //有可能前一次缩放十字星，再次放量上涨，也可以作为买点
+                                    if (tempList[i].Close > tempList[i].Open  && tempList[i].Low > tempList[i - 1].Low ) //股价必须上涨，股价不新低，上一场收十子星或红K ( 形成一个V型反转)
+                                    {
+                                        //判断上一次的收盘情况
+                                        if ((tempList[i - 1].Open <= tempList[i - 1].Close) &&  
+                                            ((tempList[i - 1].High - tempList[i -1].Low )/ tempList[i - 1].Low < 0.02m ) ) //十字星 或红盘 买点 ,振幅小于2
+                                        {
+                                            if (colorconfig.AbleEnterPoint) //是否绘制当前节点
+                                            {
+                                                g.FillEllipse(new SolidBrush(colorconfig.EnterPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+
+                                                if (isBuy == false)
+                                                {
+                                                    isBuy = true;
+                                                    dealInfo.Buy = tempList[i];
+                                                    if (colorconfig.AbleBuy)
+                                                    {
+                                                        g.FillEllipse(new SolidBrush(colorconfig.BuyInColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else //继续下跌 继续观察
+                                    {
+
+                                    }
                                 }
                             }
-
-                        }
-                        else
-                        {
-                            //量能萎缩到不足以进入分析时，且没有买入的
-                            analysisCount = 0;
-
-                            //if (analysisCount > 0)
-                            //{
-                            //    analysisCount = 0; 
-                            //}
                         }
 
-
-
-
-                        index = minFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
+                        //低量能分析（暂不分析，地量能分析意义不大）
+                        //index = minFiveVolumn.FindIndex(x => x.Volume == tempList[i].Volume);
                         //if (index != -1)
                         //    g.FillEllipse(new SolidBrush(Color.Black), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix, keyPointWidth, keyPointWidth));
-
-
-
                     }
                     else
                     {
@@ -626,7 +818,7 @@ namespace StockTest
                 #endregion
 
 
-                Console.WriteLine(dealInfo.RateOfDeal.Sum());
+               // Console.WriteLine("收益率：" + Math.Round(dealInfo.RateOfDeal.Sum(), 2) + "   总资产:" + dealInfo.InitMoney + "   交易次数:" + dealInfo.DealCount);
 
 
 
@@ -655,7 +847,7 @@ namespace StockTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message);
             }
         }
 

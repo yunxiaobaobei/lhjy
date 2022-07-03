@@ -79,6 +79,7 @@
     <Compile Include="Quotec.cs" />
     <Compile Include="ShowKlineLevel.cs" />
     <Compile Include="StockInfo.cs" />
+    <Compile Include="Strategic_one.cs" />
     <Compile Include="TargetAnalysis.cs">
       <SubType>Form</SubType>
     </Compile>
