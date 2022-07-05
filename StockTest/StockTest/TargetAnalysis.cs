@@ -95,9 +95,9 @@ namespace StockTest
 
                 panel_Kline.Controls.Clear();
 
-                UserControl1 klineControl = new UserControl1(quoteList, colorConfig);
-                klineControl.Dock = DockStyle.Fill;
-                panel_Kline.Controls.Add(klineControl);
+                //UserControl1 klineControl = new UserControl1(quoteList, colorConfig);
+                //klineControl.Dock = DockStyle.Fill;
+                //panel_Kline.Controls.Add(klineControl);
                 //klineControl.ShowDialog();
             }
         }

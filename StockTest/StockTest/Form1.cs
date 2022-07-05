@@ -14,6 +14,7 @@ using System.IO;
 using System.Threading;
 using Serilog;
 using System.Threading.Tasks;
+using Skender.Stock.Indicators;
 
 namespace StockTest
 {
@@ -752,6 +753,50 @@ namespace StockTest
             targetAnalysis.WindowState = FormWindowState.Maximized;
             targetAnalysis.ShowDialog();
 
+        }
+
+        private void btn_dealAnalysis_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string dataFile = openFileDialog.FileName;
+                string cardName = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+
+                DataTable dt = new DataTable();
+
+                List<Quote> quoteList = new List<Quote>();
+
+                dt = Common.ExcelToDataTable(dataFile, cardName);
+
+                if (dt == null)
+                    return;
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Quote s = new Quote();
+
+                    s.Volume = Decimal.Parse(dt.Rows[i]["volume"].ToString());
+                    s.Open = Decimal.Parse(dt.Rows[i]["open"].ToString());
+                    s.Close = Decimal.Parse(dt.Rows[i]["close"].ToString());
+                    s.High = Decimal.Parse(dt.Rows[i]["high"].ToString());
+                    s.Low = Decimal.Parse(dt.Rows[i]["low"].ToString());
+                    //s.Date = (DateTime)dt.Rows[i]["date"];
+                    s.Date =
+                        DateTime.ParseExact(dt.Rows[i]["time"].ToString(), "yyyyMMddHHmmssfff", System.Globalization.CultureInfo.CurrentCulture);
+                    quoteList.Add(s);
+                }
+
+                //IEnumerable<Quote> quotes = quoteList;
+                //IEnumerable<SmaResult> results = quotes.GetSma(20);
+
+                Strategic_one strategic_One = new Strategic_one();
+                DealInfo dealResult = strategic_One.Analysis(quoteList);
+
+                MessageBox.Show("交易结果分析  \r\n交易次数：" + dealResult.DealCount + "\r\n交易收益:" + dealResult.RateOfDeal.Max().ToString("0.##") + "%" + "\r\n总金额:" + dealResult.InitMoney);
+
+                
+            }
         }
     }
 }

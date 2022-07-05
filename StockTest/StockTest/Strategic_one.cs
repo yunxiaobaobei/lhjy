@@ -48,9 +48,9 @@ namespace StockTest
             for (int i = 60; i < tempList.Count; i++)
             {
 
-                if(dealInfo.DealCount  > 0)
-                Console.WriteLine("交易天数:" +  (tempList[i].Date - tempList[59].Date).TotalDays +    "   交易次数:" +  dealInfo.DealCount +
-                    "上次收益:" + dealInfo.RateOfDeal[dealInfo.RateOfDeal.Count -1] + "   当前资金：" + dealInfo.InitMoney);
+                //if(dealInfo.DealCount  > 0)
+                //Console.WriteLine("交易天数:" +  (tempList[i].Date - tempList[59].Date).TotalDays +    "   交易次数:" +  dealInfo.DealCount +
+                //    "上次收益:" + dealInfo.RateOfDeal[dealInfo.RateOfDeal.Count -1] + "   当前资金：" + dealInfo.InitMoney);
 
                 //判断量能是否在高位
                 List<Quote> oneDayVolumnList = new List<Quote>();
@@ -104,10 +104,15 @@ namespace StockTest
                 //地量中股价走低，做止损
                 if (isBuy == true)
                 {
+
                     double rate = (double)((tempList[i].Close - dealInfo.Buy.Close) / dealInfo.Buy.Close) * 100;
+
+                    if (tempList[i].Date > new DateTime(2022, 4, 28, 14, 59, 0))
+                        Console.WriteLine("");
 
                     if (rate < -3)  //下跌三个点，止损
                     {
+                        Console.WriteLine("止损点位:" + rate + " 当前时间：" + tempList[i].Date);
 
                         if (DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
                         {
@@ -116,7 +121,7 @@ namespace StockTest
                             isBuy = false;
                             dealInfo.DealCount++;
 
-
+                            ShowInfos(dealInfo, tempList, i);
                         }
 
                     }
@@ -131,6 +136,7 @@ namespace StockTest
                             isBuy = false;
                             dealInfo.DealCount++;
 
+                            ShowInfos(dealInfo, tempList, i);
                         }
                     }
 
@@ -279,7 +285,7 @@ namespace StockTest
                                     dealInfo.InitMoney = dealInfo.InitMoney * (1 + rate / 100);
                                     isBuy = false;
                                     dealInfo.DealCount++;
-
+                                    ShowInfos(dealInfo, tempList, i);
                                 }
                             }
 
@@ -300,7 +306,7 @@ namespace StockTest
                                         dealInfo.InitMoney = dealInfo.InitMoney * (1 + rate / 100);
                                         isBuy = false;
                                         dealInfo.DealCount++;
-
+                                        ShowInfos(dealInfo, tempList, i);
                                     }
                                 }
 
@@ -373,6 +379,11 @@ namespace StockTest
             return dealInfo;
         }
 
+        private void ShowInfos(DealInfo dealInfo, List<Quote> tempList, int index)
+        {
 
+            Console.WriteLine("天数:" + (tempList[index].Date - tempList[59].Date).TotalDays + "   次数:" + dealInfo.DealCount +
+                  "收益:" + dealInfo.RateOfDeal[dealInfo.RateOfDeal.Count - 1] + "   资金：" + dealInfo.InitMoney);
+        }
     }
 }
