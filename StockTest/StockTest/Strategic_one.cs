@@ -107,8 +107,8 @@ namespace StockTest
 
                     double rate = (double)((tempList[i].Close - dealInfo.Buy.Close) / dealInfo.Buy.Close) * 100;
 
-                    if (tempList[i].Date > new DateTime(2022, 4, 28, 14, 59, 0))
-                        Console.WriteLine("");
+                    //if (tempList[i].Date > new DateTime(2022, 4, 28, 14, 59, 0))
+                    //    Console.WriteLine("");
 
                     if (rate < -3)  //下跌三个点，止损
                     {

@@ -168,14 +168,14 @@ namespace StockTest
                 //价格波动范围
                 decimal priceRange = maxPrice - minPrice;
 
-                //绘制上边距
-                g.DrawLine(Pens.Green, new Point(0, disMargion), new Point(this.Width, disMargion));
+                ////绘制上边距
+                //g.DrawLine(Pens.Green, new Point(0, disMargion), new Point(this.Width, disMargion));
 
-                //绘制下边距
-                g.DrawLine(Pens.Green, new Point(0, this.Height - volumnHeight - disMargion), new Point(this.Width, this.Height - volumnHeight - disMargion));
+                ////绘制下边距
+                //g.DrawLine(Pens.Green, new Point(0, this.Height - volumnHeight - disMargion), new Point(this.Width, this.Height - volumnHeight - disMargion));
 
                 //绘制量能边距
-                g.DrawLine(Pens.Black, new Point(0, this.Height - volumnHeight), new Point(this.Width, this.Height - volumnHeight));
+               // g.DrawLine(Pens.Black, new Point(0, this.Height - volumnHeight), new Point(this.Width, this.Height - volumnHeight));
 
 
                 //确定价格高度占用像素偏移
@@ -466,8 +466,8 @@ namespace StockTest
                         //绘制一个起始量能点
                         // int indexMaxvolumnStart = maxFiveVolumn.Min(x => x.Date).Date;
                         int startIndexVolumn = tempList.FindIndex(x => x.Date == maxFiveVolumn.Min(y => y.Date));
-                       // if (startIndexVolumn != -1)
-                           // g.FillEllipse(new SolidBrush(Color.YellowGreen), new RectangleF(startIndexVolumn * kwidth, disMargion + (float)(maxPrice - tempList[startIndexVolumn].Close) * pricePerPix, keyPointWidth, keyPointWidth));
+                       if (startIndexVolumn != -1)
+                            g.FillEllipse(new SolidBrush(Color.YellowGreen), new RectangleF(startIndexVolumn * kwidth, disMargion + (float)(maxPrice - tempList[startIndexVolumn].Close) * pricePerPix + 20, keyPointWidth, keyPointWidth));
 
 
 
@@ -560,51 +560,34 @@ namespace StockTest
                             //判断较近的那个 ,同时大于20分钟
                             if (minPriceTime > maxPrcieTime)  //低价距离当前点位较近
                             {
-                                if (tempList[i].Date - minPriceTime >= TimeSpan.FromMinutes(30))
+                               
+                                if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
                                 {
-                                    if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
-                                    {
-                                        moveDirection = true;
-                                    }
-                                    else
-                                    {
-                                        moveDirection = false;
-                                    }
+                                    moveDirection = true;
                                 }
-                                else  // 时间间隔不够，以较远的那个做参考
+                                else
                                 {
-
-                                    if (tempList[i].High > maxPriceofMaxVolumns)
-                                    {
-                                        moveDirection = true;
-                                    }
-                                    else
-                                        moveDirection = false;
-
+                                    moveDirection = false;
                                 }
+
+                                //绘制趋势线
+
+                                int trendIndex = tempList.FindIndex(x => x.Date == minPriceTime);
+                                g.DrawLine(Pens.Black, new PointF(trendIndex * kwidth, disMargion + (float)(maxPrice - tempList[trendIndex].Close) * pricePerPix), 
+                                        new PointF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix));
+                               
                             }
                             else   //高位距离当前点位较近
                             {
-                                if (tempList[i].Date - maxPrcieTime >= TimeSpan.FromMinutes(30)) //时间间隔合理
-                                {
-                                    if (tempList[i].High > maxPriceofMaxVolumns)
-                                        moveDirection = true;
-                                    else
-                                        moveDirection = false;
-                                }
-                                else //时间间隔不够，以较远的为参考
-                                {
+                                if (tempList[i].High > maxPriceofMaxVolumns)
+                                    moveDirection = true;
+                                else
+                                    moveDirection = false;
 
-                                    if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
-                                    {
-                                        moveDirection = true;
-                                    }
-                                    else
-                                    {
-                                        moveDirection = false;
-                                    }
-                                }
 
+                                int trendIndex = tempList.FindIndex(x => x.Date == maxPrcieTime);
+                                g.DrawLine(Pens.Black, new PointF(trendIndex * kwidth, disMargion + (float)(maxPrice - tempList[trendIndex].Close) * pricePerPix),
+                                        new PointF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix));
                             }
                                
                         }
@@ -670,6 +653,9 @@ namespace StockTest
                                     if (colorconfig.AbleExitPoint)
                                     {
                                         g.FillEllipse(new SolidBrush(colorconfig.ExitPointColor), new RectangleF(i * kwidth, disMargion + (float)(maxPrice - tempList[i].Close) * pricePerPix + 10, keyPointWidth, keyPointWidth));
+                                   
+                                        
+                                    
                                     }
 
                                     //analysisCount = 0;

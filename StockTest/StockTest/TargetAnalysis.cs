@@ -88,16 +88,16 @@ namespace StockTest
                 //IEnumerable<Quote> quotes = quoteList;
                 //IEnumerable<SmaResult> results = quotes.GetSma(20);
 
-                Strategic_one strategic_One = new Strategic_one();
-                DealInfo dealResult= strategic_One.Analysis(quoteList);
+                //Strategic_one strategic_One = new Strategic_one();
+                //DealInfo dealResult= strategic_One.Analysis(quoteList);
 
-                MessageBox.Show("交易结果分析  \r\n交易次数：" + dealResult.DealCount + "\r\n交易收益:" + dealResult.RateOfDeal.Max().ToString("0.##") + "%"  + "\r\n总金额:" + dealResult.InitMoney) ;
+                //MessageBox.Show("交易结果分析  \r\n交易次数：" + dealResult.DealCount + "\r\n交易收益:" + dealResult.RateOfDeal.Max().ToString("0.##") + "%"  + "\r\n总金额:" + dealResult.InitMoney) ;
 
                 panel_Kline.Controls.Clear();
 
-                //UserControl1 klineControl = new UserControl1(quoteList, colorConfig);
-                //klineControl.Dock = DockStyle.Fill;
-                //panel_Kline.Controls.Add(klineControl);
+                UserControl1 klineControl = new UserControl1(quoteList, colorConfig);
+                klineControl.Dock = DockStyle.Fill;
+                panel_Kline.Controls.Add(klineControl);
                 //klineControl.ShowDialog();
             }
         }

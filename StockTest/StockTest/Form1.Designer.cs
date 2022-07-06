@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btn_dealAnalysis = new System.Windows.Forms.Button();
             this.btn_Analysis = new System.Windows.Forms.Button();
             this.btn_Quotec = new System.Windows.Forms.Button();
             this.btn_trade = new System.Windows.Forms.Button();
@@ -44,7 +45,6 @@
             this.panel7 = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.btn_dealAnalysis = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
@@ -68,13 +68,23 @@
             this.panel1.Size = new System.Drawing.Size(199, 568);
             this.panel1.TabIndex = 0;
             // 
+            // btn_dealAnalysis
+            // 
+            this.btn_dealAnalysis.Location = new System.Drawing.Point(8, 145);
+            this.btn_dealAnalysis.Name = "btn_dealAnalysis";
+            this.btn_dealAnalysis.Size = new System.Drawing.Size(75, 23);
+            this.btn_dealAnalysis.TabIndex = 10;
+            this.btn_dealAnalysis.Text = "数据分析";
+            this.btn_dealAnalysis.UseVisualStyleBackColor = true;
+            this.btn_dealAnalysis.Click += new System.EventHandler(this.btn_dealAnalysis_Click);
+            // 
             // btn_Analysis
             // 
             this.btn_Analysis.Location = new System.Drawing.Point(8, 105);
             this.btn_Analysis.Name = "btn_Analysis";
             this.btn_Analysis.Size = new System.Drawing.Size(75, 23);
             this.btn_Analysis.TabIndex = 9;
-            this.btn_Analysis.Text = "指标分析";
+            this.btn_Analysis.Text = "打开曲线图";
             this.btn_Analysis.UseVisualStyleBackColor = true;
             this.btn_Analysis.Click += new System.EventHandler(this.btn_Analysis_Click);
             // 
@@ -214,16 +224,6 @@
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(808, 568);
             this.panel5.TabIndex = 5;
-            // 
-            // btn_dealAnalysis
-            // 
-            this.btn_dealAnalysis.Location = new System.Drawing.Point(8, 145);
-            this.btn_dealAnalysis.Name = "btn_dealAnalysis";
-            this.btn_dealAnalysis.Size = new System.Drawing.Size(75, 23);
-            this.btn_dealAnalysis.TabIndex = 10;
-            this.btn_dealAnalysis.Text = "数据分析";
-            this.btn_dealAnalysis.UseVisualStyleBackColor = true;
-            this.btn_dealAnalysis.Click += new System.EventHandler(this.btn_dealAnalysis_Click);
             // 
             // Form1
             // 
