@@ -126,7 +126,7 @@ namespace StockTest
 
                     }
 
-                    if (rate > 5) //大于5个点， 止盈
+                    if (rate > 10) //大于5个点， 止盈
                     {
 
                         if (DateTime.Parse(dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
