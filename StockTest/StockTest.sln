@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "历史数据分析", "历�
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoClick", "AutoClick\AutoClick.csproj", "{93410A59-0BC4-474B-81A7-919FB6BBE3D4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoDeal", "AutoDeal\AutoDeal.csproj", "{30E42898-35D1-4843-BA03-4561232FBC67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{93410A59-0BC4-474B-81A7-919FB6BBE3D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93410A59-0BC4-474B-81A7-919FB6BBE3D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93410A59-0BC4-474B-81A7-919FB6BBE3D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30E42898-35D1-4843-BA03-4561232FBC67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30E42898-35D1-4843-BA03-4561232FBC67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30E42898-35D1-4843-BA03-4561232FBC67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30E42898-35D1-4843-BA03-4561232FBC67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
