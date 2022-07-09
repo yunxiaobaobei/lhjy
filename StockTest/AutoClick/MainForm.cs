@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace AutoClick
 {
@@ -35,7 +36,7 @@ namespace AutoClick
             string windowName = txtBox_windowName.Text;
 
             IntPtr mainHandle = WinAPI.FindWindow(null, windowName);
-
+          
 
             if (mainHandle == IntPtr.Zero)
             {
@@ -44,23 +45,85 @@ namespace AutoClick
             }
             else
             {
-                MessageBox.Show($"查询到指定窗口!{windowName}");
+               // MessageBox.Show($"查询到指定窗口!{windowName}");
 
                 //获取窗口大小
                 WinAPI.Rect rect = new WinAPI.Rect();
-                WinAPI.GetWindowRect(mainHandle, out rect);
+                //WinAPI.GetWindowRect(mainHandle, out rect);
 
                 richTextBox1.AppendText("窗口大小:" + rect);
 
                 //查找子按钮
-               //设置当前窗口位置和大小
-               this.Location = new Point(rect.Left, rect.Top);
+                //设置当前窗口位置和大小
+                // this.Location = new Point(rect.Left, rect.Top);
 
                 //设置大小
-                this.Size  = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
+                //   this.Size  = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
 
 
-                WinAPI.SendText("", mainHandle);
+                //WinAPI.SendText("", mainHandle);
+
+                //查找子窗口 // #32770 (对话框)
+
+                // IntPtr childHandle = WinAPI.FindWindowEx(mainHandle, 0, "#32770 (对话框)", null);
+
+
+               IntPtr dealButtonHandle = WinAPI.FindWindowExMy(mainHandle, "买入[B]", true);
+
+                if (dealButtonHandle != IntPtr.Zero)
+                {
+                    //MessageBox.Show("找到交易按钮");
+
+                    //发送点击事件
+                    WinAPI.SendMessage2(dealButtonHandle, 0xF5, 0, 0);
+                    return;
+
+                    //激活窗口
+
+                    WinAPI.SetForegroundWindow(mainHandle);
+                    WinAPI.ShowWindow(mainHandle, 1);
+
+
+                    //发送F1 F2 
+                    WinAPI.keybd_event((byte)Keys.F1, 0, 0, 0);
+                    WinAPI.keybd_event((byte)Keys.F1, 0, 2, 0);
+
+                    Thread.Sleep(3000);
+                   // MessageBox.Show("切换模式");
+
+                    //WinAPI.SetForegroundWindow(mainHandle);
+                    //WinAPI.ShowWindow(mainHandle, 1);
+
+                    WinAPI.keybd_event((byte)Keys.F2, 0, 0, 0);
+                    WinAPI.keybd_event((byte)Keys.F2, 0, 2, 0);
+
+                    //发送点击事件
+                     WinAPI.SendMessage2(dealButtonHandle, 0xF5, 0, 0);
+
+                    System.Threading.Thread.Sleep(1000);
+
+                    //WinAPI.keybd_event((byte)Keys.NumPad3 , 17, 0, 0);
+                    // WinAPI.keybd_event((byte)Keys.NumPad3, 145, 2, 0);
+                    char[] chars = "300087".ToCharArray();
+                    for (int i = 0; i < chars.Length; i++)
+                    {
+                        Keys key = (Keys)chars[i]; //(Keys)Enum.Parse(typeof(Keys), chars[i].ToString());
+                        Thread.Sleep(50);
+                        WinAPI.keybd_event((byte)key, 0, 0, 0);
+                        WinAPI.keybd_event((byte)key, 0, 2, 0);
+                    }
+
+                    ////匹配代码名称     匹配成功
+
+                    //Thread.Sleep(1000);
+                    ////发送点击事件
+                    //WinAPI.SendMessage2(dealButtonHandle, 0xF5, 0, 0);
+                }
+                else
+                {
+                    MessageBox.Show("未找到交易按钮");
+                }
+
             }
 
 
@@ -137,9 +200,98 @@ namespace AutoClick
             //WinAPI.SendText("hello 123");
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            IntPtr prt = (IntPtr)0x00030652;
+
+            WinAPI.SendMessage(prt, WinAPI.WM_SETTEXT, IntPtr.Zero, new StringBuilder("300064"));
+
+            WinAPI.TestNotepad();
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            
+        }
+
+        //自动交易按钮
+        private void btn_autoDeal_Click(object sender, EventArgs e)
+        {
+            if (txtBox_windowName.Text.Trim() == "")
+            {
+                MessageBox.Show("请输入需要查找的窗口名!");
+                return;
+            }
+
+            string windowName = txtBox_windowName.Text;
+
+            IntPtr mainHandle = WinAPI.FindWindow(null, windowName);
 
 
-       
+            if (mainHandle == IntPtr.Zero)
+            {
+                MessageBox.Show("未查找到指定的窗口");
+                return;
+            }
+            else
+            {
+                //激活窗口
+               WinAPI.SetForegroundWindow(mainHandle);
+               WinAPI.ShowWindow(mainHandle, 1); //显示窗口， 正常大小
+
+                //发送F1 切换换到买入模式
+                //WinAPI.keybd_event((byte)Keys.F1, 0, 0, 0);
+                //WinAPI.keybd_event((byte)Keys.F1, 0, 2, 0);
+
+
+                //查看买入按钮
+               Tuple<IntPtr, IntPtr> buyButton = WinAPI.FindWindowExMyWithParentHandle(mainHandle, "买入[B]", true);
+                if (buyButton.Item1 != IntPtr.Zero)
+                {
+
+                    //模式切换正确
+                    //发送点击事件
+                    WinAPI.SendMessage2(buyButton.Item1, 0xF5, 0, 0);
+
+                    Thread.Sleep(500);
+
+                    //输入股票代码
+                    char[] chars = "300087".ToCharArray();
+                    for (int i = 0; i < chars.Length; i++)
+                    {
+                        Keys key = (Keys)chars[i]; //(Keys)Enum.Parse(typeof(Keys), chars[i].ToString());
+                        Thread.Sleep(50);
+                        WinAPI.keybd_event((byte)key, 0, 0, 0);
+                        WinAPI.keybd_event((byte)key, 0, 2, 0);
+                    }
+
+
+                    //发送全仓买入事件
+                    IntPtr fivtyPercent = WinAPI.FindWindowExByDimStrIntoWindow("100(全仓)");
+                    fivtyPercent = WinAPI.FindWindowExMy(mainHandle, "1/2", true);
+                    if (fivtyPercent != IntPtr.Zero)
+                    {
+                        ////发送点击事件
+                        WinAPI.SendMessage2(buyButton.Item1, 0xF5, 0, 0);
+                       // WinAPI.SendMessage2(buyButton.Item1, 0xF5, 2, 0);
+                      //  WinAPI.SendMessage2(buyButton.Item1, 0xF5, 0, 0);
+                        WinAPI.SendMessage2(buyButton.Item1, 0xF5,0, 0);
+
+                    }
+
+
+                }
+
+            }
+
+
+        }
 
     }
 }

@@ -39,6 +39,9 @@
             this.txtBox_Y = new System.Windows.Forms.TextBox();
             this.btn_sendMsg = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.btn_setStockCode = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btn_autoDeal = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btn_searchWindow
@@ -70,7 +73,7 @@
             this.txtBox_windowName.Name = "txtBox_windowName";
             this.txtBox_windowName.Size = new System.Drawing.Size(273, 26);
             this.txtBox_windowName.TabIndex = 2;
-            this.txtBox_windowName.Text = "AV3900ADemo";
+            this.txtBox_windowName.Text = "专业版下单";
             // 
             // label1
             // 
@@ -86,9 +89,9 @@
             // 
             this.richTextBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.richTextBox1.Location = new System.Drawing.Point(814, 12);
+            this.richTextBox1.Location = new System.Drawing.Point(420, 424);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(328, 540);
+            this.richTextBox1.Size = new System.Drawing.Size(328, 150);
             this.richTextBox1.TabIndex = 4;
             this.richTextBox1.Text = "";
             // 
@@ -150,12 +153,48 @@
             this.button2.TabIndex = 10;
             this.button2.Text = "发送鼠标事件";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // btn_setStockCode
+            // 
+            this.btn_setStockCode.Location = new System.Drawing.Point(214, 167);
+            this.btn_setStockCode.Name = "btn_setStockCode";
+            this.btn_setStockCode.Size = new System.Drawing.Size(117, 30);
+            this.btn_setStockCode.TabIndex = 11;
+            this.btn_setStockCode.Text = "修改文本内容";
+            this.btn_setStockCode.UseVisualStyleBackColor = true;
+            this.btn_setStockCode.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.button1.Location = new System.Drawing.Point(27, 277);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(123, 25);
+            this.button1.TabIndex = 12;
+            this.button1.Text = "发送键盘事件";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
+            // btn_autoDeal
+            // 
+            this.btn_autoDeal.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.btn_autoDeal.Location = new System.Drawing.Point(27, 343);
+            this.btn_autoDeal.Name = "btn_autoDeal";
+            this.btn_autoDeal.Size = new System.Drawing.Size(206, 88);
+            this.btn_autoDeal.TabIndex = 13;
+            this.btn_autoDeal.Text = "自动交易";
+            this.btn_autoDeal.UseVisualStyleBackColor = true;
+            this.btn_autoDeal.Click += new System.EventHandler(this.btn_autoDeal_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1154, 564);
+            this.ClientSize = new System.Drawing.Size(760, 603);
+            this.Controls.Add(this.btn_autoDeal);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btn_setStockCode);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.btn_sendMsg);
             this.Controls.Add(this.txtBox_Y);
@@ -168,7 +207,6 @@
             this.Controls.Add(this.btn_getMousePos);
             this.Controls.Add(this.btn_searchWindow);
             this.Name = "MainForm";
-            this.Opacity = 0.6D;
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseDown);
@@ -191,6 +229,9 @@
         private System.Windows.Forms.TextBox txtBox_Y;
         private System.Windows.Forms.Button btn_sendMsg;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btn_setStockCode;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btn_autoDeal;
     }
 }
 

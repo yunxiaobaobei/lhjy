@@ -146,7 +146,8 @@ namespace StockTest
                 if (tempList[i].Volume >= maxFiveVolumn[maxFiveVolumn.Count - 1].Volume)
                 {
 
-                    analysisCount++; //标记这里可以开始策略分析
+                    analysisCount++
+                        ; //标记这里可以开始策略分析
 
                     //趋势判断（上涨或下跌），找到爆量点的最高和最低位置，判断离当前点位最近的一个，如果近点小于30分钟，
                     //则用另一个判断（另一个小于30分钟的概率较低，如果不行，只能去当天的最高和最低，来继续分析趋势）
