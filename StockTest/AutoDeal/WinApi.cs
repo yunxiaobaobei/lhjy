@@ -23,6 +23,13 @@ namespace AutoDeal
         const int WM_GETTEXT = 0x000D;
         const int WM_GETTEXTLENGTH = 0x000E;
 
+
+        public const int HWND_TOP = 0;
+        public const int HWND_BOTTOM = 1;
+        public const int HWND_TOPMOST = -1;
+        public const int HWND_NOTOPMOST = -2;
+
+
         public enum MouseEventFlags
         {
             Move = 0x0001,

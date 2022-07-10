@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Serilog;
+using System.Threading;
+
 namespace AutoDeal
 {
     public partial class MainForm : Form
@@ -18,7 +20,11 @@ namespace AutoDeal
         }
 
 
-        AutoClickDeal autoClickDeal = new AutoClickDeal();
+        AutoClickDeal autoClickDeal = AutoClickDeal.GetInstance();
+
+        GetRealTimeData realTimeData = new GetRealTimeData();
+
+        Strategic_one strategic_One = new Strategic_one();
 
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -30,10 +36,15 @@ namespace AutoDeal
           .CreateLogger();
 
 
-            //启动获取数据的线程
+            //加载json文件
 
 
-            //启动分析模型
+
+
+
+            //添加股票池
+            realTimeData.stockList.Add("sz300064");
+            realTimeData.stockList.Add("sh601778");
 
         }
 
@@ -42,11 +53,61 @@ namespace AutoDeal
         private void btn_start_Click(object sender, EventArgs e)
         {
 
+            IntPtr mainHandle = WinAPI.FindWindow(null, "专业版下单");
+
+
+            if (mainHandle == IntPtr.Zero)
+            {
+                MessageBox.Show("请先打开交易软件");
            
+                return;
+            }
+
+
+            //启动获取数据的线程
+            realTimeData.StartGetRealDate();
+          
             //启动交易
             autoClickDeal.StartDeal();
 
 
+            btn_start.Enabled = false;
+
+        }
+
+        /// <summary>
+        /// 测试点击流程
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btn_testClick_Click(object sender, EventArgs e)
+        {
+            //启动交易
+            autoClickDeal.StartDeal();
+
+            ThreadPool.QueueUserWorkItem( (o) =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(5000);
+                    autoClickDeal.TraggleDeal("300364", DealType.buy, new Skender.Stock.Indicators.Quote());
+                }
+
+            }, null);
+
+        }
+
+        private void btn_testGetData_Click(object sender, EventArgs e)
+        {
+            //realTimeData.StartGetRealDate();
+        }
+
+        private void btn_testOldData_Click(object sender, EventArgs e)
+        {
+            realTimeData.TestStartGetRealDate();
+
+            //启动交易
+            autoClickDeal.StartDeal();
         }
     }
 }
