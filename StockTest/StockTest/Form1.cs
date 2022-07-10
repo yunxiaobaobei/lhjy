@@ -68,17 +68,17 @@ namespace StockTest
             klineG = Graphics.FromImage(klinePic);
             klineG.Clear(Color.White);
 
-          //  LoadBaseInfo();
+           // LoadBaseInfo();
 
 
 
 
-            //string html = GetStockOnlineInfo(stockNum);
+           // string html = GetStockOnlineInfo(stockNum);
 
-            //CalcPrice(html);
+           // CalcPrice(html);
 
 
-            //comboBox1.SelectedIndex = 0;
+            comboBox1.SelectedIndex = 0;
 
 
             //2s后执行
