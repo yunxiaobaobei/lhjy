@@ -76,6 +76,7 @@
     <Compile Include="Pankou.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QHquote.cs" />
     <Compile Include="Quotec.cs" />
     <Compile Include="ShowKlineLevel.cs" />
     <Compile Include="StockInfo.cs" />

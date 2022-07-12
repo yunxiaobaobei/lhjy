@@ -10,6 +10,9 @@ using System.Windows.Forms;
 using Skender.Stock.Indicators;
 using System.Data;
 using System.IO;
+using System.Net;
+using Serilog;
+using Newtonsoft.Json;
 
 namespace StockTest
 {
@@ -70,6 +73,8 @@ namespace StockTest
                 if (dt == null)
                     return;
 
+                quoteList.Clear();
+
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     Quote s = new Quote();
@@ -100,6 +105,40 @@ namespace StockTest
                 panel_Kline.Controls.Add(klineControl);
                 //klineControl.ShowDialog();
             }
+        }
+
+        private void btn_loadQHdata_Click(object sender, EventArgs e)
+        {
+
+            string res = SinaGet_QH_OneMinute("", 0);
+
+            Log.Information(res);
+
+            List<QHquote> queues = JsonConvert.DeserializeObject<List<QHquote>>(res);
+
+            quoteList.Clear();
+
+            for (int i = 0; i < queues.Count; i++)
+            {
+                Quote s = new Quote();
+
+                s.Volume = queues[i].Volume;
+                s.Open = queues[i].Open;
+                s.Close = queues[i].Close;
+                s.High = queues[i].High;
+                s.Low = queues[i].Low;
+
+                s.Date = queues[i].Date;
+                    
+                quoteList.Add(s);
+            }
+
+            panel_Kline.Controls.Clear();
+
+            UserControl1 klineControl = new UserControl1(quoteList, colorConfig);
+            klineControl.Dock = DockStyle.Fill;
+            panel_Kline.Controls.Add(klineControl);
+
         }
 
 
@@ -254,5 +293,61 @@ namespace StockTest
             g.DrawRectangle(Pens.Black, broder);
 
         }
+
+
+        /// <summary>
+        /// 获取数据
+        /// </summary>
+        /// <param name="code">代码</param>
+        /// <param name="dataCount">数据量</param>
+        /// <returns></returns>
+        public string SinaGet_QH_OneMinute(string code, int dataCount)
+        {
+            string html = "";
+
+            try
+            {
+                HttpWebRequest request = null;
+
+                long timeSpan = Common.GetTimeStamp(DateTime.Now);
+
+                code = "RM0";
+                string var = $"_{code}_5_{timeSpan}";
+
+                //修改 scale 的值可以获取不同级别的数据 scale=15 ---- 15 分钟 scale=240 ---日K   datalen 获取的节点数
+                request = (HttpWebRequest)WebRequest.Create($"https://stock2.finance.sina.com.cn/futures/api/jsonp.php/var {var}=/InnerFuturesNewService.getFewMinLine?symbol={code}&type=1&datalen=100"); //300364    //300087
+                request.Method = "Get";
+                request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                request.AllowAutoRedirect = false;
+                request.KeepAlive = true;
+                request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
+
+
+                Stream ss = request.GetResponse().GetResponseStream();
+                StreamReader streamReader = new StreamReader(ss, Encoding.UTF8);
+                html = streamReader.ReadToEnd();
+
+
+                int index = html.IndexOf(var);
+
+                html = html.Substring(index + var.Length + 2);
+                html = html.Substring(0, html.Length - 2);
+                html.Replace(")", "");
+                html.Replace("(", "");
+
+                ss.Close();
+                streamReader.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("获取新浪数据失败!" + ex.Message);
+            }
+
+            return html;
+        }
+
     }
 }

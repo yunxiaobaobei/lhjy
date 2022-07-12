@@ -91,23 +91,26 @@ namespace AutoDeal
                 {
                     Log.Information("查找到交易界面");
 
-                    //前置交易窗体
-                    WinAPI.Rect rect = new WinAPI.Rect();
-                    WinAPI.SetForegroundWindow(mainHandle);
-
-                    Log.Information("置顶交易界面");
-                    WinAPI.GetWindowRect(mainHandle, out rect);
-                    WinAPI.SetWindowPos(mainHandle, (IntPtr)WinAPI.HWND_TOPMOST, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, 0);
-
+                   
                     while (true)
                     {
                         //是否开始交易
                         if (triggerDeal == true)
                         {
 
+                            //前置交易窗体
+                            WinAPI.Rect rect = new WinAPI.Rect();
+                            WinAPI.SetForegroundWindow(mainHandle);
+
+                            Log.Information("置顶交易界面");
+                            WinAPI.GetWindowRect(mainHandle, out rect);
+                            WinAPI.SetWindowPos(mainHandle, (IntPtr)WinAPI.HWND_TOPMOST, rect.Left, rect.Top, rect.Right - rect.Left, rect.Bottom - rect.Top, 0);
+
+
+
                             //找到输入框，清空输入框
                             Log.Information("清空股票代码");
-                            WinAPI.GetWindowRect((IntPtr)0x00040A56, out rect);//123456就是spy++得到的句柄，10进制
+                            WinAPI.GetWindowRect((IntPtr)0x000109D8, out rect);//123456就是spy++得到的句柄，10进制
                             WinAPI.SetCursorPos(rect.Left + (rect.Right - rect.Left) / 2, rect.Top + (rect.Bottom - rect.Top) / 2);//鼠标操作
                             WinAPI.mouse_event((int)WinAPI.MouseEventFlags.LeftDown, 0, 0, 0, 0);//鼠标操作
                             WinAPI.mouse_event((int)WinAPI.MouseEventFlags.LeftUp, 0, 0, 0, 0);
@@ -243,13 +246,13 @@ namespace AutoDeal
 
                             //撤销交易
                             //查找撤销按钮句柄
-                            IntPtr cancelDealHandle = WinAPI.FindWindowEx(mainHandle, IntPtr.Zero, "Button", "全撤[Z /]"); //WinAPI.FindWindowExByDimStrIntoChildWindow(mainHandle, "全撤", "Button");
-                            if (cancelDealHandle != IntPtr.Zero)
-                            {
-                                Log.Information("2s后撤单");
-                                Thread.Sleep(2000);
-                                WinAPI.SendMessage2(cancelDealHandle, 0xF5, 0, 0);
-                            }
+                            //IntPtr cancelDealHandle = WinAPI.FindWindowEx(mainHandle, IntPtr.Zero, "Button", "全撤[Z /]"); //WinAPI.FindWindowExByDimStrIntoChildWindow(mainHandle, "全撤", "Button");
+                            //if (cancelDealHandle != IntPtr.Zero)
+                            //{
+                            //    Log.Information("2s后撤单");
+                            //    Thread.Sleep(2000);
+                            //    WinAPI.SendMessage2(cancelDealHandle, 0xF5, 0, 0);
+                            //}
 
 
                                 triggerDeal = false; //交易结束
@@ -280,7 +283,17 @@ namespace AutoDeal
                 triggerDeal = true;
                 dealType = type;
                 stockCode = code;
-                
+
+                if (type == DealType.buy)
+                {
+                    isBuy = true;
+                    dealInfo.Buy = quote;
+                }
+                else
+                {
+                    isBuy = false;
+                }
+
                 ThreadPool.QueueUserWorkItem( (o) =>
                 {
                     Log.Information("更新交易文件");

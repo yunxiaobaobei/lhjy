@@ -109,5 +109,11 @@ namespace AutoDeal
             //启动交易
             autoClickDeal.StartDeal();
         }
+
+        private void btn_qh_Click(object sender, EventArgs e)
+        {
+            string res = realTimeData.SinaGet_QH_Fiveminute("", 0);
+            Log.Information(res);
+        }
     }
 }

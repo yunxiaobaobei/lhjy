@@ -63,14 +63,14 @@
             this.panel1.Controls.Add(this.comboBox1);
             this.panel1.Controls.Add(this.richTextBox1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(970, 0);
+            this.panel1.Location = new System.Drawing.Point(1057, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(199, 568);
+            this.panel1.Size = new System.Drawing.Size(261, 634);
             this.panel1.TabIndex = 0;
             // 
             // btn_dealAnalysis
             // 
-            this.btn_dealAnalysis.Location = new System.Drawing.Point(8, 145);
+            this.btn_dealAnalysis.Location = new System.Drawing.Point(48, 130);
             this.btn_dealAnalysis.Name = "btn_dealAnalysis";
             this.btn_dealAnalysis.Size = new System.Drawing.Size(75, 23);
             this.btn_dealAnalysis.TabIndex = 10;
@@ -80,7 +80,7 @@
             // 
             // btn_Analysis
             // 
-            this.btn_Analysis.Location = new System.Drawing.Point(8, 105);
+            this.btn_Analysis.Location = new System.Drawing.Point(48, 90);
             this.btn_Analysis.Name = "btn_Analysis";
             this.btn_Analysis.Size = new System.Drawing.Size(75, 23);
             this.btn_Analysis.TabIndex = 9;
@@ -90,7 +90,7 @@
             // 
             // btn_Quotec
             // 
-            this.btn_Quotec.Location = new System.Drawing.Point(111, 163);
+            this.btn_Quotec.Location = new System.Drawing.Point(151, 148);
             this.btn_Quotec.Name = "btn_Quotec";
             this.btn_Quotec.Size = new System.Drawing.Size(75, 23);
             this.btn_Quotec.TabIndex = 8;
@@ -100,7 +100,7 @@
             // 
             // btn_trade
             // 
-            this.btn_trade.Location = new System.Drawing.Point(111, 134);
+            this.btn_trade.Location = new System.Drawing.Point(151, 119);
             this.btn_trade.Name = "btn_trade";
             this.btn_trade.Size = new System.Drawing.Size(75, 23);
             this.btn_trade.TabIndex = 7;
@@ -110,7 +110,7 @@
             // 
             // btn_pankou
             // 
-            this.btn_pankou.Location = new System.Drawing.Point(111, 105);
+            this.btn_pankou.Location = new System.Drawing.Point(151, 90);
             this.btn_pankou.Name = "btn_pankou";
             this.btn_pankou.Size = new System.Drawing.Size(75, 23);
             this.btn_pankou.TabIndex = 6;
@@ -121,7 +121,7 @@
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(65, 52);
+            this.comboBox2.Location = new System.Drawing.Point(105, 52);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(121, 20);
             this.comboBox2.TabIndex = 5;
@@ -130,7 +130,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 55);
+            this.label2.Location = new System.Drawing.Point(19, 60);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(29, 12);
             this.label2.TabIndex = 4;
@@ -139,7 +139,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 15);
+            this.label1.Location = new System.Drawing.Point(19, 15);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(53, 12);
             this.label1.TabIndex = 3;
@@ -152,7 +152,7 @@
             "1",
             "5",
             "10"});
-            this.comboBox1.Location = new System.Drawing.Point(65, 12);
+            this.comboBox1.Location = new System.Drawing.Point(105, 12);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(121, 20);
             this.comboBox1.TabIndex = 2;
@@ -161,18 +161,18 @@
             // richTextBox1
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.richTextBox1.Location = new System.Drawing.Point(0, 197);
+            this.richTextBox1.Location = new System.Drawing.Point(0, 263);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(199, 371);
+            this.richTextBox1.Size = new System.Drawing.Size(261, 371);
             this.richTextBox1.TabIndex = 1;
             this.richTextBox1.Text = "";
             // 
             // panel3
             // 
             this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel3.Location = new System.Drawing.Point(0, 407);
+            this.panel3.Location = new System.Drawing.Point(0, 473);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(808, 161);
+            this.panel3.Size = new System.Drawing.Size(895, 161);
             this.panel3.TabIndex = 2;
             this.panel3.Paint += new System.Windows.Forms.PaintEventHandler(this.panel3_Paint);
             // 
@@ -181,7 +181,7 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(808, 407);
+            this.panel2.Size = new System.Drawing.Size(895, 473);
             this.panel2.TabIndex = 3;
             this.panel2.Paint += new System.Windows.Forms.PaintEventHandler(this.panel2_Paint);
             this.panel2.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseClick);
@@ -192,9 +192,9 @@
             this.panel4.Controls.Add(this.panel7);
             this.panel4.Controls.Add(this.panel6);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel4.Location = new System.Drawing.Point(808, 0);
+            this.panel4.Location = new System.Drawing.Point(895, 0);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(162, 568);
+            this.panel4.Size = new System.Drawing.Size(162, 634);
             this.panel4.TabIndex = 4;
             // 
             // panel7
@@ -202,14 +202,14 @@
             this.panel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel7.Location = new System.Drawing.Point(0, 0);
             this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(162, 332);
+            this.panel7.Size = new System.Drawing.Size(162, 398);
             this.panel7.TabIndex = 1;
             this.panel7.Paint += new System.Windows.Forms.PaintEventHandler(this.panel7_Paint);
             // 
             // panel6
             // 
             this.panel6.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel6.Location = new System.Drawing.Point(0, 332);
+            this.panel6.Location = new System.Drawing.Point(0, 398);
             this.panel6.Name = "panel6";
             this.panel6.Size = new System.Drawing.Size(162, 236);
             this.panel6.TabIndex = 0;
@@ -222,14 +222,14 @@
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel5.Location = new System.Drawing.Point(0, 0);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(808, 568);
+            this.panel5.Size = new System.Drawing.Size(895, 634);
             this.panel5.TabIndex = 5;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1169, 568);
+            this.ClientSize = new System.Drawing.Size(1318, 634);
             this.Controls.Add(this.panel5);
             this.Controls.Add(this.panel4);
             this.Controls.Add(this.panel1);

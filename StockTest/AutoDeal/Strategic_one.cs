@@ -114,10 +114,10 @@ namespace AutoDeal
                         if (DateTime.Parse(clickDeal.dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
                         {
                            
-                            clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
+                            //clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
                             
-                            clickDeal.isBuy = false;
-                            clickDeal.dealInfo.DealCount++;
+                            //clickDeal.isBuy = false;
+                            //clickDeal.dealInfo.DealCount++;
 
                             if (i == tempList.Count - 1)
                             {
@@ -134,9 +134,9 @@ namespace AutoDeal
                         if (DateTime.Parse(clickDeal.dealInfo.Buy.Date.ToString("d")) < DateTime.Parse(tempList[i].Date.ToString("d")))
                         {
                             
-                            clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
-                            clickDeal.isBuy = false;
-                            clickDeal.dealInfo.DealCount++;
+                            //clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
+                            //clickDeal.isBuy = false;
+                            //clickDeal.dealInfo.DealCount++;
 
                             if (i == tempList.Count - 1)
                             {
@@ -253,8 +253,8 @@ namespace AutoDeal
 
                                 if (clickDeal.isBuy == false)
                                 {
-                                    clickDeal.isBuy = true;
-                                    clickDeal.dealInfo.Buy = tempList[i];
+                                    //clickDeal.isBuy = true;
+                                    //clickDeal.dealInfo.Buy = tempList[i];
 
                                     //判断当前是否为最后一根K线
                                     if (i == tempList.Count - 1)
@@ -291,9 +291,9 @@ namespace AutoDeal
                                 {
                                     double rate = (double)((tempList[i].Close - clickDeal.dealInfo.Buy.Close) / clickDeal.dealInfo.Buy.Close) * 100;
                                     
-                                    clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
-                                    clickDeal.isBuy = false;
-                                    clickDeal.dealInfo.DealCount++;
+                                    //clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
+                                    //clickDeal.isBuy = false;
+                                    //clickDeal.dealInfo.DealCount++;
                                     //判断当前是否为最后一根K线
                                     if (i == tempList.Count - 1)
                                     {
@@ -318,9 +318,9 @@ namespace AutoDeal
                                     {
                                         double rate = (double)((tempList[i].Close - clickDeal.dealInfo.Buy.Close) / clickDeal.dealInfo.Buy.Close) * 100;
                                         
-                                        clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
-                                        clickDeal.isBuy = false;
-                                        clickDeal.dealInfo.DealCount++;
+                                        //clickDeal.dealInfo.InitMoney = clickDeal.dealInfo.InitMoney * (1 + rate / 100);
+                                        //clickDeal.isBuy = false;
+                                        //clickDeal.dealInfo.DealCount++;
 
                                         //判断当前是否为最后一根K线
                                         if (i == tempList.Count - 1)
@@ -355,8 +355,8 @@ namespace AutoDeal
 
                                     if (clickDeal.isBuy == false)
                                     {
-                                        clickDeal.isBuy = true;
-                                        clickDeal.dealInfo.Buy = tempList[i];
+                                        //clickDeal.isBuy = true;
+                                        //clickDeal.dealInfo.Buy = tempList[i];
 
                                         //判断当前是否为最后一根K线
                                         if (i == tempList.Count - 1)
@@ -389,8 +389,8 @@ namespace AutoDeal
 
                                     if (clickDeal.isBuy == false)
                                     {
-                                        clickDeal.isBuy = true;
-                                        clickDeal.dealInfo.Buy = tempList[i];
+                                        //clickDeal.isBuy = true;
+                                        //clickDeal.dealInfo.Buy = tempList[i];
                                         //判断当前是否为最后一根K线
                                         if (i == tempList.Count - 1)
                                         {

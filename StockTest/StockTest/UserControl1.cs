@@ -225,7 +225,7 @@ namespace StockTest
                 dealInfo.InitMoney = 100000;
                 dealInfo.DealCount = 0;
                 int keyPointWidth = 10;
-
+                int timeMinutesSpan = 10; //趋势判断时间间隔
 
                 //单独绘制k线
                 for (int i = 0; i < tempList.Count; i++)
@@ -502,7 +502,7 @@ namespace StockTest
                             //先保证时间间隔大于30分钟
                             List<Quote> timspan30List = new List<Quote>();
                             maxFiveVolumn.ForEach(x => {
-                                if (tempList[i].Date - x.Date >= TimeSpan.FromMinutes(30))
+                                if (tempList[i].Date - x.Date >= TimeSpan.FromMinutes(timeMinutesSpan))
                                     timspan30List.Add(x);
                             });
 
@@ -511,8 +511,6 @@ namespace StockTest
 
                             DateTime maxPrcieTime = timspan30List.Find(x => x.High == maxPriceofMaxVolumns).Date;
                             DateTime minPriceTime = timspan30List.Find(x => x.Low == minPriceOfMaxVolumns).Date;
-
-
 
                             //判断较近的那个 ,同时大于20分钟
                             if (minPriceTime > maxPrcieTime)  //低价距离当前点位较近

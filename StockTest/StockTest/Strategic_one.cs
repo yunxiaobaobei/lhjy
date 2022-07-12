@@ -42,7 +42,7 @@ namespace StockTest
             dealInfo.RateOfDeal = new List<double>();
             dealInfo.InitMoney = 10000;
             dealInfo.DealCount = 0;
-
+            int timeMinutesSpan = 20; //趋势判断时间间隔
 
 
             for (int i = 60; i < tempList.Count; i++)
@@ -116,7 +116,7 @@ namespace StockTest
                     List<Quote> timspan30List = new List<Quote>();
                     maxFiveVolumn.ForEach(x =>
                     {
-                        if (tempList[i].Date - x.Date >= TimeSpan.FromMinutes(20))
+                        if (tempList[i].Date - x.Date >= TimeSpan.FromMinutes(timeMinutesSpan))
                             timspan30List.Add(x);
                     });
 
@@ -131,7 +131,7 @@ namespace StockTest
                     //判断较近的那个 ,同时大于20分钟
                     if (minPriceTime > maxPrcieTime)  //低价距离当前点位较近
                     {
-                        if (tempList[i].Date - minPriceTime >= TimeSpan.FromMinutes(30))
+                        if (tempList[i].Date - minPriceTime >= TimeSpan.FromMinutes(timeMinutesSpan))
                         {
                             if (tempList[i].Low > minPriceOfMaxVolumns) //大于最低价
                             {
@@ -156,7 +156,7 @@ namespace StockTest
                     }
                     else   //高位距离当前点位较近
                     {
-                        if (tempList[i].Date - maxPrcieTime >= TimeSpan.FromMinutes(30)) //时间间隔合理
+                        if (tempList[i].Date - maxPrcieTime >= TimeSpan.FromMinutes(timeMinutesSpan)) //时间间隔合理
                         {
                             if (tempList[i].High > maxPriceofMaxVolumns)
                                 moveDirection = true;

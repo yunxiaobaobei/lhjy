@@ -66,6 +66,7 @@
             this.panel_Kline = new System.Windows.Forms.Panel();
             this.panel_volumn = new System.Windows.Forms.Panel();
             this.colorDialog1 = new System.Windows.Forms.ColorDialog();
+            this.btn_loadQHdata = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -80,6 +81,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.btn_loadQHdata);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.combox_target);
             this.panel1.Controls.Add(this.btn_getHistory);
@@ -112,7 +114,7 @@
             this.btn_getHistory.Name = "btn_getHistory";
             this.btn_getHistory.Size = new System.Drawing.Size(117, 36);
             this.btn_getHistory.TabIndex = 0;
-            this.btn_getHistory.Text = "获取历史数据";
+            this.btn_getHistory.Text = "加载A股历史数据";
             this.btn_getHistory.UseVisualStyleBackColor = true;
             this.btn_getHistory.Click += new System.EventHandler(this.btn_getHistory_Click);
             // 
@@ -492,6 +494,16 @@
             this.panel_volumn.TabIndex = 0;
             this.panel_volumn.Paint += new System.Windows.Forms.PaintEventHandler(this.panel_volumn_Paint);
             // 
+            // btn_loadQHdata
+            // 
+            this.btn_loadQHdata.Location = new System.Drawing.Point(191, 25);
+            this.btn_loadQHdata.Name = "btn_loadQHdata";
+            this.btn_loadQHdata.Size = new System.Drawing.Size(119, 35);
+            this.btn_loadQHdata.TabIndex = 3;
+            this.btn_loadQHdata.Text = "加载期货历史数据";
+            this.btn_loadQHdata.UseVisualStyleBackColor = true;
+            this.btn_loadQHdata.Click += new System.EventHandler(this.btn_loadQHdata_Click);
+            // 
             // TargetAnalysis
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -559,5 +571,6 @@
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.ColorDialog colorDialog1;
+        private System.Windows.Forms.Button btn_loadQHdata;
     }
 }

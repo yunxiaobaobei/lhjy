@@ -32,11 +32,12 @@
             this.btn_testClick = new System.Windows.Forms.Button();
             this.btn_testGetData = new System.Windows.Forms.Button();
             this.btn_testOldData = new System.Windows.Forms.Button();
+            this.btn_qh = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btn_start
             // 
-            this.btn_start.Location = new System.Drawing.Point(22, 23);
+            this.btn_start.Location = new System.Drawing.Point(80, 27);
             this.btn_start.Name = "btn_start";
             this.btn_start.Size = new System.Drawing.Size(102, 46);
             this.btn_start.TabIndex = 0;
@@ -46,7 +47,7 @@
             // 
             // btn_testClick
             // 
-            this.btn_testClick.Location = new System.Drawing.Point(22, 113);
+            this.btn_testClick.Location = new System.Drawing.Point(80, 117);
             this.btn_testClick.Name = "btn_testClick";
             this.btn_testClick.Size = new System.Drawing.Size(102, 46);
             this.btn_testClick.TabIndex = 1;
@@ -56,7 +57,7 @@
             // 
             // btn_testGetData
             // 
-            this.btn_testGetData.Location = new System.Drawing.Point(22, 199);
+            this.btn_testGetData.Location = new System.Drawing.Point(80, 203);
             this.btn_testGetData.Name = "btn_testGetData";
             this.btn_testGetData.Size = new System.Drawing.Size(102, 46);
             this.btn_testGetData.TabIndex = 2;
@@ -66,7 +67,7 @@
             // 
             // btn_testOldData
             // 
-            this.btn_testOldData.Location = new System.Drawing.Point(22, 264);
+            this.btn_testOldData.Location = new System.Drawing.Point(80, 268);
             this.btn_testOldData.Name = "btn_testOldData";
             this.btn_testOldData.Size = new System.Drawing.Size(102, 46);
             this.btn_testOldData.TabIndex = 3;
@@ -74,11 +75,22 @@
             this.btn_testOldData.UseVisualStyleBackColor = true;
             this.btn_testOldData.Click += new System.EventHandler(this.btn_testOldData_Click);
             // 
+            // btn_qh
+            // 
+            this.btn_qh.Location = new System.Drawing.Point(348, 27);
+            this.btn_qh.Name = "btn_qh";
+            this.btn_qh.Size = new System.Drawing.Size(102, 46);
+            this.btn_qh.TabIndex = 4;
+            this.btn_qh.Text = "测试期货数据";
+            this.btn_qh.UseVisualStyleBackColor = true;
+            this.btn_qh.Click += new System.EventHandler(this.btn_qh_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1022, 533);
+            this.ClientSize = new System.Drawing.Size(559, 514);
+            this.Controls.Add(this.btn_qh);
             this.Controls.Add(this.btn_testOldData);
             this.Controls.Add(this.btn_testGetData);
             this.Controls.Add(this.btn_testClick);
@@ -96,6 +108,7 @@
         private System.Windows.Forms.Button btn_testClick;
         private System.Windows.Forms.Button btn_testGetData;
         private System.Windows.Forms.Button btn_testOldData;
+        private System.Windows.Forms.Button btn_qh;
     }
 }
 

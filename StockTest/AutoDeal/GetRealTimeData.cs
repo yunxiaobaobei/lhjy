@@ -42,7 +42,7 @@ namespace AutoDeal
                    while (true)
                    {
 
-                       DateTime startTime_AM = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 26, 0);
+                       DateTime startTime_AM = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 9, 31, 0);
                        DateTime endTime_AM = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 11, 31, 0);
 
                        DateTime startTime_PM = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 12, 59, 0);
@@ -71,7 +71,7 @@ namespace AutoDeal
 
                        }
 
-                       Thread.Sleep(10000); //每10秒获取一次数据
+                       Thread.Sleep(5 * 60 * 1000); //获取5分钟级别的线，应该等待5分钟
                    }
                }
                catch (Exception ex)
@@ -137,6 +137,63 @@ namespace AutoDeal
 
             return html;
         }
+
+
+        /// <summary>
+        /// 获取数据
+        /// </summary>
+        /// <param name="code">代码</param>
+        /// <param name="dataCount">数据量</param>
+        /// <returns></returns>
+        public string SinaGet_QH_Fiveminute(string code, int dataCount)
+        {
+            string html = "";
+
+            try
+            {
+                HttpWebRequest request = null;
+
+                long timeSpan = GetTimeStamp(DateTime.Now);
+
+                code = "RM0";
+                string var = $"_{code}_5_{timeSpan}";
+
+                //修改 scale 的值可以获取不同级别的数据 scale=15 ---- 15 分钟 scale=240 ---日K   datalen 获取的节点数
+                request = (HttpWebRequest)WebRequest.Create($"https://stock2.finance.sina.com.cn/futures/api/jsonp.php/var {var}=/InnerFuturesNewService.getFewMinLine?symbol={code}&type=1"); //300364    //300087
+                request.Method = "Get";
+                request.ContentType = "*/*";
+                request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                request.AllowAutoRedirect = false;
+                request.KeepAlive = true;
+                request.Timeout = 10000;//设置HttpWebRequest获取响应的超时时间为10000毫秒，即10秒
+
+
+                Stream ss = request.GetResponse().GetResponseStream();
+                StreamReader streamReader = new StreamReader(ss, Encoding.UTF8);
+                html = streamReader.ReadToEnd();
+
+
+                int index = html.IndexOf(var);
+
+                html = html.Substring(index + var.Length + 2);
+                html = html.Substring(0, html.Length - 2);
+                html.Replace(")", "");
+                html.Replace("(", "");
+
+                ss.Close();
+                streamReader.Close();
+
+            }
+            catch (Exception ex)
+            {
+                Log.Error("获取新浪数据失败!" + ex.Message);
+            }
+
+            return html;
+        }
+
+
 
 
         private string XiuQiuQuotecInfo(string stockNum)
